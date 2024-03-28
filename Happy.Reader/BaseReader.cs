@@ -16,13 +16,13 @@
 
         public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount)
         {
-            var nextUrl = $"{Domain}{Url}";
+            var nextUrl = Url;
             int count = 0;
             using (var client = new HttpClient())
             {
-                while (!string.IsNullOrEmpty(nextUrl) && count < chapterCount)
+                while (count < chapterCount && !string.IsNullOrEmpty(nextUrl))
                 {
-                    var html = await client.GetStringAsync(nextUrl);
+                    var html = await client.GetStringAsync($"{Domain}{nextUrl}");
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
                     var chapter = new Chapter
@@ -32,7 +32,7 @@
                         Title = GetChapterTitle(doc)
                     };
 
-                    nextUrl = $"{Domain}{chapter.NextChapter}";
+                    nextUrl = chapter.NextChapter;
                     count++;
 
                     yield return chapter;

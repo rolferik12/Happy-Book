@@ -50,6 +50,9 @@
         public override string GetChapterTitle(HtmlDocument document)
         {
             var headerNode = document.DocumentNode.SelectSingleNode("//div[contains(@class, 'fic-header')]");
+
+            if (headerNode == null) return string.Empty;
+
             var h1Node = headerNode.SelectSingleNode("//h1");
             if (!string.IsNullOrEmpty(h1Node.InnerText))
                 return HttpUtility.HtmlDecode(h1Node.InnerText);
