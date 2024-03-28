@@ -5,6 +5,12 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Happy.Document\Happy.Document.csproj" />
+    <ProjectReference Include="..\Happy.Reader\Happy.Reader.csproj" />
+  </ItemGroup>
 
 </Project>

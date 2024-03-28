@@ -7,6 +7,49 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Book name" Height="28" HorizontalAlignment="Left" Name="lblBookName" VerticalAlignment="Top" />
+            <TextBox Grid.Row="0" Grid.Column="0" Height="23" Margin="0,26,0,0" Name="txtBookName" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="0" Grid.Column="1" Content="Folder" Height="28" HorizontalAlignment="Left" Name="lblSaveFolder" VerticalAlignment="Top" />
+            <TextBox Grid.Row="0"  Grid.Column="1" Height="23" Margin="0,26,53,0" Name="txtFolder" VerticalAlignment="Top"/>
+            <Button Name="btnBrowse" Grid.Row="0" Grid.Column="1" Content="Browse" HorizontalAlignment="Right" Margin="0,26,0,0" VerticalAlignment="Top" Height="23" Width="53" Click="btnBrowse_Click"/>
+
+            <Label Grid.Row="1" Grid.ColumnSpan="2" Content="Url" Height="28" HorizontalAlignment="Left" Name="lblUrl" VerticalAlignment="Top" />
+            <TextBox Grid.Row="1" Grid.ColumnSpan="2"  Height="23" Margin="0,26,1,0" Name="txtUrl" VerticalAlignment="Center" />
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Reader" Height="28" HorizontalAlignment="Left" Name="lblReader" VerticalAlignment="Top" />
+            <ComboBox Grid.Row="2" Grid.Column="0" Name="ddlReader" Margin="0,26,0,0"/>
+
+            <Label Grid.Row="2" Grid.Column="1" Content="Chapters" Height="28" HorizontalAlignment="Left" Name="lblCount" VerticalAlignment="Top" />
+            <TextBox Grid.Row="2" Grid.Column="1" Height="23" Margin="0,26,0,0" Name="txtChapterCount" VerticalAlignment="Center" PreviewTextInput="txtChapterCount_PreviewTextInput" DataObject.Pasting="txtChapterCount_Pasting" />
+
+            <Button Grid.Row="3" Grid.Column="0" x:Name="btnImport" Content="Import" IsEnabled="True" Click="btnImport_Click" HorizontalAlignment="Right" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
+            <Button Grid.Row="3" Grid.Column="1" x:Name="btnSave" Content="Save" IsEnabled="False" Click="btnSave_Click"  HorizontalAlignment="Left" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
+        </Grid>
+        
+        <ContentControl Grid.Row="1">
+            <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="1*"  />
+                </DataGrid.Columns>
+            </DataGrid>
+        </ContentControl>
 
     </Grid>
 </Window>
