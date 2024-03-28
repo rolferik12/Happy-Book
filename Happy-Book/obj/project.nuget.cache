@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4sxDCkT87A1J1uHxHcgF8tkLIZj5ZeRon2/Kfzda+cMKQEkOWmLdcu241p3RFUxdlYHaqNWey8ybDspo1E8ZkQ==",
+  "dgSpecHash": "sBEyq+gqtGUm1abXG12WvJWC8XQLYZwY1TRU25sY7NztCPS0E25gqJkypWjUTzZ8YyfgiMwxAVTOqsqy7aeXGw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
+  "projectFilePath": "C:\\Repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\rolfe\\.nuget\\packages\\documentformat.openxml\\2.20.0\\documentformat.openxml.2.20.0.nupkg.sha512",
     "C:\\Users\\rolfe\\.nuget\\packages\\htmlagilitypack\\1.11.54\\htmlagilitypack.1.11.54.nupkg.sha512",

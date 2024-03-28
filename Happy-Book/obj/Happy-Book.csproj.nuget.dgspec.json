@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj": {}
+    "C:\\Repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj": {}
   },
   "projects": {
-    "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj": {
+    "C:\\Repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
+        "projectUniqueName": "C:\\Repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
         "projectName": "Happy-Book",
-        "projectPath": "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
+        "projectPath": "C:\\Repos\\Happy-Book\\Happy-Book\\Happy-Book.csproj",
         "packagesPath": "C:\\Users\\rolfe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\rolfe\\source\\repos\\Happy-Book\\Happy-Book\\obj\\",
+        "outputPath": "C:\\Repos\\Happy-Book\\Happy-Book\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\rolfe\\AppData\\Roaming\\NuGet\\NuGet.Config",

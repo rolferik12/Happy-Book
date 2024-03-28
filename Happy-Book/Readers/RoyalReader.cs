@@ -18,16 +18,6 @@ namespace Happy_Book.Readers
         {
         }
 
-        //public override Chapter GetChapter(HtmlDocument document)
-        //{
-        //    return new Chapter
-        //    {
-        //        NextChapter = GetNextChapterLink(document),
-        //        html = GetChapterHtml(document),
-        //        Title = GetChapterTitle(document)
-        //    };
-        //}
-
         public override string GetChapterHtml(HtmlDocument document)
         {
             var chapterNode = document.DocumentNode.SelectSingleNode("//div[@class='chapter-inner chapter-content']");
@@ -63,14 +53,14 @@ namespace Happy_Book.Readers
 
         }
 
-        public override HappyText GetChapterTitle(HtmlDocument document)
+        public override string GetChapterTitle(HtmlDocument document)
         {
             var headerNode = document.DocumentNode.SelectSingleNode("//div[contains(@class, 'fic-header')]");
             var h1Node = headerNode.SelectSingleNode("//h1");
             if (!string.IsNullOrEmpty(h1Node.InnerText))
-                return new HappyText { Value = HttpUtility.HtmlDecode(h1Node.InnerText) };
+                return HttpUtility.HtmlDecode(h1Node.InnerText);
 
-            return new HappyText();
+            return string.Empty;
         }
     }
 }

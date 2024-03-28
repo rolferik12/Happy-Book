@@ -7,7 +7,7 @@ using (var client = new HttpClient())
     var bookName = "Worm Arc 1 - Gestation";
     var url = "https://parahumans.wordpress.com/category/stories-arcs-1-10/arc-1-gestation/1-01/";
 
-    var chapterCount = 54;
+    var chapterCount = 3;
     var reader = new WormReader(url, bookName);
     var writer = new WordWriter($"C:\\temp\\BookReader\\{bookName}.docx");
 

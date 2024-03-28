@@ -61,14 +61,14 @@ namespace Happy_Book.Readers
             }
         }
 
-        public override HappyText GetChapterTitle(HtmlDocument document)
+        public override string GetChapterTitle(HtmlDocument document)
         {
             var h1Node = document.DocumentNode.SelectSingleNode("//h1[@class='entry-title']");
 
             if (!string.IsNullOrEmpty(h1Node.InnerText))
-                return new HappyText { Value = HttpUtility.HtmlDecode(h1Node.InnerText) };
+                return HttpUtility.HtmlDecode(h1Node.InnerText);
 
-            return new HappyText();
+            return string.Empty;
         }
 
         public override string GetNextChapterLink(HtmlDocument document)

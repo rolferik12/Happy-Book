@@ -1,9 +1,4 @@
 ﻿using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Happy_Book.Readers
 {
@@ -30,7 +25,13 @@ namespace Happy_Book.Readers
                     var html = await client.GetStringAsync(nextUrl);
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
-                    var chapter = GetChapter(doc);
+                    var chapter = new Chapter
+                    {
+                        NextChapter = GetNextChapterLink(doc),
+                        Html = GetChapterHtml(doc),
+                        Title = GetChapterTitle(doc)
+                    };
+
                     nextUrl = $"{Domain}{chapter.NextChapter}";
                     count++;
 
@@ -39,17 +40,8 @@ namespace Happy_Book.Readers
             }
         }
 
-        public Chapter GetChapter(HtmlDocument document)
-        {
-            return new Chapter
-            {
-                NextChapter = GetNextChapterLink(document),
-                html = GetChapterHtml(document),
-                Title = GetChapterTitle(document)
-            };
-        }
         public abstract string GetChapterHtml(HtmlDocument document);
         public abstract string GetNextChapterLink(HtmlDocument document);
-        public abstract HappyText GetChapterTitle(HtmlDocument document);
+        public abstract string GetChapterTitle(HtmlDocument document);
     }
 }
