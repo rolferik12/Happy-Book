@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Happy-Book", "Happy-Book\Happy-Book.csproj", "{D22D63DF-AB09-4433-A6B4-D8E50E878DAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Happy-Book", "Happy-Book\Happy-Book.csproj", "{D22D63DF-AB09-4433-A6B4-D8E50E878DAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Happy.BookCreator", "Happy.BookCreator\Happy.BookCreator.csproj", "{E7F52C08-278B-4329-B0DB-06E25A61A5C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Happy.Reader", "Happy.Reader\Happy.Reader.csproj", "{8E303D5F-FECF-4F3E-9353-BB758CAC036F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Happy.Document", "Happy.Document\Happy.Document.csproj", "{EDE6041B-4F3C-4283-B387-B0A9FF6B4653}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{D22D63DF-AB09-4433-A6B4-D8E50E878DAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D22D63DF-AB09-4433-A6B4-D8E50E878DAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D22D63DF-AB09-4433-A6B4-D8E50E878DAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F52C08-278B-4329-B0DB-06E25A61A5C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F52C08-278B-4329-B0DB-06E25A61A5C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F52C08-278B-4329-B0DB-06E25A61A5C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F52C08-278B-4329-B0DB-06E25A61A5C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E303D5F-FECF-4F3E-9353-BB758CAC036F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E303D5F-FECF-4F3E-9353-BB758CAC036F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E303D5F-FECF-4F3E-9353-BB758CAC036F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E303D5F-FECF-4F3E-9353-BB758CAC036F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDE6041B-4F3C-4283-B387-B0A9FF6B4653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDE6041B-4F3C-4283-B387-B0A9FF6B4653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDE6041B-4F3C-4283-B387-B0A9FF6B4653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDE6041B-4F3C-4283-B387-B0A9FF6B4653}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

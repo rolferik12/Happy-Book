@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Happy.Document\Happy.Document.csproj" />
+    <ProjectReference Include="..\Happy.Reader\Happy.Reader.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Template\Template.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

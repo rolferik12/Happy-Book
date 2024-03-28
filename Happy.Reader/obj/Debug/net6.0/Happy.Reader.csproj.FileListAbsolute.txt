@@ -1,0 +1,12 @@
+C:\Repos\Happy-Book\Happy.Reader\bin\Debug\net6.0\Happy.Reader.deps.json
+C:\Repos\Happy-Book\Happy.Reader\bin\Debug\net6.0\Happy.Reader.dll
+C:\Repos\Happy-Book\Happy.Reader\bin\Debug\net6.0\Happy.Reader.pdb
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.csproj.AssemblyReference.cache
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.GeneratedMSBuildEditorConfig.editorconfig
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.AssemblyInfoInputs.cache
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.AssemblyInfo.cs
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.csproj.CoreCompileInputs.cache
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.dll
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\refint\Happy.Reader.dll
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\Happy.Reader.pdb
+C:\Repos\Happy-Book\Happy.Reader\obj\Debug\net6.0\ref\Happy.Reader.dll

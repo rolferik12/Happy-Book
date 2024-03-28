@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Happy_Book;
-using Happy_Book.Readers;
+
+using Happy.Document.Word;
+using Happy.Reader;
 
 using (var client = new HttpClient())
 {
@@ -9,13 +10,13 @@ using (var client = new HttpClient())
 
     var chapterCount = 3;
     var reader = new WormReader(url, bookName);
-    var writer = new WordWriter($"C:\\temp\\BookReader\\{bookName}.docx");
+    var writer = new Writer($"C:\\temp\\BookReader\\{bookName}.docx");
 
     int counter = 0;
     await foreach (var chapter in reader.GetChapters(chapterCount))
     {
         Console.Write($"Writing chapter {counter + 1}");
-        writer.WriteChapter(chapter);
+        writer.WriteChapterFromHtml(chapter.Title, chapter.Html);
         Console.WriteLine("... Done");
         counter++;
     }

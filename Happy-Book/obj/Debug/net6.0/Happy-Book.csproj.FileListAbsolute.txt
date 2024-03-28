@@ -40,3 +40,7 @@ C:\Repos\Happy-Book\Happy-Book\obj\Debug\net6.0\refint\Happy-Book.dll
 C:\Repos\Happy-Book\Happy-Book\obj\Debug\net6.0\Happy-Book.pdb
 C:\Repos\Happy-Book\Happy-Book\obj\Debug\net6.0\Happy-Book.genruntimeconfig.cache
 C:\Repos\Happy-Book\Happy-Book\obj\Debug\net6.0\ref\Happy-Book.dll
+C:\Repos\Happy-Book\Happy-Book\bin\Debug\net6.0\Happy.Document.dll
+C:\Repos\Happy-Book\Happy-Book\bin\Debug\net6.0\Happy.Reader.dll
+C:\Repos\Happy-Book\Happy-Book\bin\Debug\net6.0\Happy.Document.pdb
+C:\Repos\Happy-Book\Happy-Book\bin\Debug\net6.0\Happy.Reader.pdb

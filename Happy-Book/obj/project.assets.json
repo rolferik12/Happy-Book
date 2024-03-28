@@ -283,6 +283,33 @@
             "related": ".xml"
           }
         }
+      },
+      "Happy.Document/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "DocumentFormat.OpenXml": "2.20.0",
+          "HtmlToOpenXml.dll": "2.3.0"
+        },
+        "compile": {
+          "bin/placeholder/Happy.Document.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Happy.Document.dll": {}
+        }
+      },
+      "Happy.Reader/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "HtmlAgilityPack": "1.11.54"
+        },
+        "compile": {
+          "bin/placeholder/Happy.Reader.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Happy.Reader.dll": {}
+        }
       }
     }
   },
@@ -1349,11 +1376,23 @@
         "system.threading.tasks.4.3.0.nupkg.sha512",
         "system.threading.tasks.nuspec"
       ]
+    },
+    "Happy.Document/1.0.0": {
+      "type": "project",
+      "path": "../Happy.Document/Happy.Document.csproj",
+      "msbuildProject": "../Happy.Document/Happy.Document.csproj"
+    },
+    "Happy.Reader/1.0.0": {
+      "type": "project",
+      "path": "../Happy.Reader/Happy.Reader.csproj",
+      "msbuildProject": "../Happy.Reader/Happy.Reader.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
       "DocumentFormat.OpenXml >= 2.20.0",
+      "Happy.Document >= 1.0.0",
+      "Happy.Reader >= 1.0.0",
       "HtmlAgilityPack >= 1.11.54",
       "HtmlToOpenXml.dll >= 2.3.0"
     ]
@@ -1384,7 +1423,14 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Repos\\Happy-Book\\Happy.Document\\Happy.Document.csproj": {
+              "projectPath": "C:\\Repos\\Happy-Book\\Happy.Document\\Happy.Document.csproj"
+            },
+            "C:\\Repos\\Happy-Book\\Happy.Reader\\Happy.Reader.csproj": {
+              "projectPath": "C:\\Repos\\Happy-Book\\Happy.Reader\\Happy.Reader.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

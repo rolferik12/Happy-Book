@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "3Xe6oXJa42lOZuY87X4TVNeGaIboI93Ej4sRoZGnOYfwE2/oQz7hsEgv+vmkvloit7hNW2y5jpsU2ef7rgpBNg==",
+  "success": true,
+  "projectFilePath": "C:\\Repos\\Happy-Book\\Happy.Reader\\Happy.Reader.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\rolfe\\.nuget\\packages\\htmlagilitypack\\1.11.54\\htmlagilitypack.1.11.54.nupkg.sha512"
+  ],
+  "logs": []
+}
