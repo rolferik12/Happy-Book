@@ -23,44 +23,6 @@
             return chapterNode.InnerHtml;
         }
 
-        private void RemoveNodeWithtext(HtmlNode node, params string[] phrases)
-        {
-            var children = node.ChildNodes;
-
-            for (int i = 0; i < children.Count; i++)
-            {
-                var child = children[i];
-
-                foreach (var phrase in phrases)
-                {
-                    if (!child.InnerText.Contains(phrase)) continue;
-
-                    node.RemoveChild(child);
-                    i--;
-                    break;
-
-                }
-            }
-        }
-
-        private void RemoveLink(HtmlNode node)
-        {
-            var children = node.ChildNodes;
-
-            for (int i = 0; i < children.Count; i++)
-            {
-                var child = children[i];
-                if (child.Attributes["href"] == null)
-                {
-                    RemoveLink(child);
-                    continue;
-                }
-
-                node.RemoveChild(child);
-                i--;
-            }
-        }
-
         public override string GetChapterTitle(HtmlDocument document)
         {
             var h1Node = document.DocumentNode.SelectSingleNode("//h1[@class='entry-title']");

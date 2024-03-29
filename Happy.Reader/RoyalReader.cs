@@ -18,6 +18,8 @@
 
             if (chapterNode == null) return string.Empty;
 
+            RemoveNodeWithTextProbability(chapterNode, "Amazon", "theft", "content", "unathorized", "detected", "story", "report", "pilfered", "violation");
+
             return chapterNode.InnerHtml;
         }
 
