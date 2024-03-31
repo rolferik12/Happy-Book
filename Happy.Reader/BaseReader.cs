@@ -40,11 +40,26 @@
             }
         }
 
+        internal void ChangeTableWidth(HtmlNode node, int percentage)
+        {
+            var children = node.ChildNodes;
+
+            foreach (var child in children)
+            {
+                if (child.Name != "table")
+                {
+                    ChangeTableWidth(child, percentage);
+                    continue;
+                }
+
+                child.Attributes.Add("style", "width: 100%");
+            }
+        }
 
         internal void RemoveNodeWithTextProbability(HtmlNode node, params string[] keywords)
         {
             var children = node.ChildNodes;
-            
+
             for (int i = 0; i < children.Count; i++)
             {
                 var child = children[i];

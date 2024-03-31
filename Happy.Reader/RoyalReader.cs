@@ -18,7 +18,9 @@
 
             if (chapterNode == null) return string.Empty;
 
-            RemoveNodeWithTextProbability(chapterNode, "Amazon", "theft", "content", "unathorized", "detected", "story", "report", "pilfered", "violation");
+            RemoveNodeWithTextProbability(chapterNode, "Amazon", "novel", "report", "pilfered", "violation", "content", "unathorized", "stolen", "theft", "detected", "story");
+
+            ChangeTableWidth(chapterNode, 100);
 
             return chapterNode.InnerHtml;
         }
