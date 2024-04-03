@@ -20,6 +20,7 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
                 <RowDefinition Height="60"/>
             </Grid.RowDefinitions>
 
@@ -39,8 +40,11 @@
             <Label Grid.Row="2" Grid.Column="1" Content="Chapters" Height="28" HorizontalAlignment="Left" Name="lblCount" VerticalAlignment="Top" />
             <TextBox Grid.Row="2" Grid.Column="1" Height="23" Margin="0,26,0,0" Name="txtChapterCount" VerticalAlignment="Center" PreviewTextInput="txtChapterCount_PreviewTextInput" DataObject.Pasting="txtChapterCount_Pasting" />
 
-            <Button Grid.Row="3" Grid.Column="0" x:Name="btnImport" Content="Import" IsEnabled="True" Click="btnImport_Click" HorizontalAlignment="Right" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
-            <Button Grid.Row="3" Grid.Column="1" x:Name="btnSave" Content="Save" IsEnabled="False" Click="btnSave_Click"  HorizontalAlignment="Left" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
+            <Label Grid.Row="3" Grid.ColumnSpan="2" Content="Remove text from header" Height="28" HorizontalAlignment="Left" Name="lblRemoveHeader" VerticalAlignment="Top" />
+            <TextBox Grid.Row="3" Grid.ColumnSpan="2" Height="23" Margin="0,26,0,0" Name="txtHeaderRemove" VerticalAlignment="Center" />
+
+            <Button Grid.Row="4" Grid.Column="0" x:Name="btnImport" Content="Import" IsEnabled="True" Click="btnImport_Click" HorizontalAlignment="Right" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
+            <Button Grid.Row="4" Grid.Column="1" x:Name="btnSave" Content="Save" IsEnabled="False" Click="btnSave_Click"  HorizontalAlignment="Left" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
         </Grid>
         
         <ContentControl Grid.Row="1">

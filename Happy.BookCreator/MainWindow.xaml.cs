@@ -42,7 +42,7 @@
             switch (readerType)
             {
                 case ReaderEnum.RoyalRoad:
-                    reader = new RoyalReader(url, bookName);
+                    reader = new RoyalReader(url, bookName, txtHeaderRemove.Text);
                     break;
                 case ReaderEnum.Worm:
                     reader = new WormReader(url, bookName);
@@ -55,6 +55,7 @@
             await foreach (var chapter in reader.GetChapters(chapterCount))
             {
                 Chapters.Add(chapter);
+                dataGrid.ScrollIntoView(chapter);
                 counter++;
             }
 

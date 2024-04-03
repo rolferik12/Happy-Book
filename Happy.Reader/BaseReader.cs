@@ -8,10 +8,14 @@
         public string Url { get; set; }
         public string BookName { get; set; }
 
-        public BaseReader(string url, string bookName)
+        private List<string> headerTextToRemove = new List<string>();
+
+        public BaseReader(string url, string bookName, string removeHeaderText = "")
         {
             Url = url;
             BookName = bookName;
+
+            headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount)
@@ -29,7 +33,7 @@
                     {
                         NextChapter = GetNextChapterLink(doc),
                         Html = GetChapterHtml(doc),
-                        Title = GetChapterTitle(doc)
+                        Title = GetChapterTitle(doc, headerTextToRemove)
                     };
 
                     nextUrl = chapter.NextChapter;
@@ -56,30 +60,37 @@
             }
         }
 
-        internal void RemoveNodeWithTextProbability(HtmlNode node, params string[] keywords)
+        internal void RemoveNodeWithTextProbability(HtmlNode node, Dictionary<string, int> keywords, int scoreMax = 9)
         {
             var children = node.ChildNodes;
 
             for (int i = 0; i < children.Count; i++)
             {
                 var child = children[i];
+
+                if (child.HasChildNodes)
+                {
+                    RemoveNodeWithTextProbability(child, keywords);
+                    continue;
+                }
+                
                 int score = 0;
-                int weight = keywords.Length;
                 foreach (var keyword in keywords)
                 {
-                    if (child.InnerText.ToLower().Contains(keyword.ToLower()))
-                        score += weight;
-
-                    weight--;
+                    if (child.InnerText.ToLower().Contains(keyword.Key.ToLower()))
+                        score += keyword.Value;
                 }
 
-                if (score > keywords.Length)
+                if (score > 3 && score <= scoreMax)
+                {
+                    continue;
+                }
+
+                if (score > scoreMax)
                 {
                     node.RemoveChild(child);
                     continue;
                 }
-
-                RemoveNodeWithTextProbability(child, keywords);
             }
         }
 
@@ -123,6 +134,6 @@
 
         public abstract string GetChapterHtml(HtmlDocument document);
         public abstract string GetNextChapterLink(HtmlDocument document);
-        public abstract string GetChapterTitle(HtmlDocument document);
+        public abstract string GetChapterTitle(HtmlDocument document, List<string> headerTextToRemove);
     }
 }

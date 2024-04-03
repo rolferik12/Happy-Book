@@ -23,7 +23,7 @@
             return chapterNode.InnerHtml;
         }
 
-        public override string GetChapterTitle(HtmlDocument document)
+        public override string GetChapterTitle(HtmlDocument document, List<string> headerTextToRemove)
         {
             var h1Node = document.DocumentNode.SelectSingleNode("//h1[@class='entry-title']");
 

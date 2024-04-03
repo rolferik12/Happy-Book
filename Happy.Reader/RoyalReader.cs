@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Reflection.Metadata;
     using System.Web;
 
     public class RoyalReader : BaseReader
@@ -8,7 +9,7 @@
 
         public override string Domain { get; } = "https://www.royalroad.com";
 
-        public RoyalReader(string url, string bookName) : base(url, bookName)
+        public RoyalReader(string url, string bookName, string headerToRemove) : base(url, bookName, headerToRemove)
         {
         }
 
@@ -18,7 +19,26 @@
 
             if (chapterNode == null) return string.Empty;
 
-            RemoveNodeWithTextProbability(chapterNode, "Amazon", "novel", "report", "pilfered", "violation", "content", "unathorized", "stolen", "theft", "detected", "story");
+            var swearWords = new Dictionary<string, int>
+            {
+                { "Amazon", 9 },
+                { "Royal Road", 9 },
+                { "stolen", 6 },
+                { "novel", 3}, 
+                { "report", 3 }, 
+                { "pilfered", 3 }, 
+                { "violation", 3 }, 
+                { "content", 3 }, 
+                { "unauthorized", 4 }, 
+                { "theft", 3 }, 
+                { "detected", 3 }, 
+                { "story", 3 },
+                { "without authorization", 5 },
+                { "consent", 3 },
+                { "narrative", 3 }
+            };
+
+            RemoveNodeWithTextProbability(chapterNode, swearWords);
 
             ChangeTableWidth(chapterNode, 100);
 
@@ -51,17 +71,25 @@
 
         }
 
-        public override string GetChapterTitle(HtmlDocument document)
+        public override string GetChapterTitle(HtmlDocument document, List<string> headerTextToRemove)
         {
             var headerNode = document.DocumentNode.SelectSingleNode("//div[contains(@class, 'fic-header')]");
 
             if (headerNode == null) return string.Empty;
 
             var h1Node = headerNode.SelectSingleNode("//h1");
-            if (!string.IsNullOrEmpty(h1Node.InnerText))
-                return HttpUtility.HtmlDecode(h1Node.InnerText);
+            if (string.IsNullOrEmpty(h1Node.InnerText))
+                return string.Empty;
 
-            return string.Empty;
+            var decodedTitle = HttpUtility.HtmlDecode(h1Node.InnerText);
+
+            foreach (var item in headerTextToRemove)
+            {
+                decodedTitle = decodedTitle.Replace(item, "");
+            }
+
+            return decodedTitle;
+            
         }
     }
 }
