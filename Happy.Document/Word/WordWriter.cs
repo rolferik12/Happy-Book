@@ -4,22 +4,24 @@
     using DocumentFormat.OpenXml.Wordprocessing;
     using HtmlToOpenXml;
 
-    public class Writer
+    public class WordWriter : IWriter
     {
         private WordprocessingDocument _document;
 
-        public Writer(string url)
+        public WordWriter(string url)
         {
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\Template.docx");
 
-            if (File.Exists(url))
+            var filePath = $"{url}.docx";
+
+            if (File.Exists(filePath))
             {
-                File.Delete(url);
+                File.Delete(filePath);
             }
 
-            File.Copy(templatePath, url);
+            File.Copy(templatePath, filePath);
 
-            _document = WordprocessingDocument.Open(url, true);
+            _document = WordprocessingDocument.Open(filePath, true);
         }
 
         public void Save()

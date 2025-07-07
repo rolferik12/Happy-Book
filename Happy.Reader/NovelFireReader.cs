@@ -26,7 +26,7 @@
 
         public override string GetNextChapterLink(HtmlDocument document)
         {
-            var nextButton = document.DocumentNode.SelectSingleNode("//a[@class='button nextchap']");
+            var nextButton = document.DocumentNode.SelectSingleNode("//a[contains(@class, 'nextchap')]");
 
             if (nextButton == null) return string.Empty;
 

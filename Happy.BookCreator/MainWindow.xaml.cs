@@ -1,8 +1,11 @@
 ﻿namespace Happy.BookCreator
 {
+    using Happy.Document;
+    using Happy.Document.Html;
     using Happy.Document.Word;
     using Happy.Reader;
     using System;
+    using System.Buffers;
     using System.Collections.ObjectModel;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -18,6 +21,7 @@
             InitializeComponent();
             dataGrid.ItemsSource = Chapters;
             ddlReader.ItemsSource = Enum.GetValues(typeof(ReaderEnum));
+            ddlOutputType.ItemsSource = Enum.GetValues(typeof(OutputTypeEnum));
             txtFolder.Text = @"C:\temp\BookReader\";
         }
 
@@ -61,6 +65,7 @@
             await foreach (var chapter in reader.GetChapters(chapterCount))
             {
                 Chapters.Add(chapter);
+                btnSave.Content = $"Save ({Chapters.Count})";
                 dataGrid.ScrollIntoView(chapter);
                 counter++;
             }
@@ -108,11 +113,32 @@
 
         private async void btnSave_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(ddlReader.SelectedValue?.ToString()))
+                return;
+
+            var outputType = Enum.Parse<OutputTypeEnum>(ddlOutputType.SelectedValue?.ToString() ?? "");
+            var documentPath = $"{txtFolder.Text}{txtBookName.Text}";
+            IWriter? writer = null;
+
+
+            switch (outputType)
+            {
+                case OutputTypeEnum.None:
+                    break;
+                case OutputTypeEnum.Docx:
+                    writer = new WordWriter($"{documentPath}");
+                    break;
+                case OutputTypeEnum.Html:
+                    writer = new HtmlWriter(txtBookName.Text, documentPath);
+                    break;
+                default:
+                    break;
+            }
+
+            if (writer == null) return;
+
             btnSave.IsEnabled = false;
             btnSave.Content = "Saving...";
-
-            var documentPath = $"{txtFolder.Text}{txtBookName.Text}.docx";
-            var writer = new Writer(documentPath);
 
             await Task.Run(() =>
             {

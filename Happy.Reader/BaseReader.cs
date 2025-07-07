@@ -30,9 +30,25 @@
 
                 while (count < chapterCount && !string.IsNullOrEmpty(nextUrl))
                 {
-                    var response = await client.GetAsync(nextUrl);
-                    var html = await response.Content.ReadAsStringAsync();
-                    //var html = await client.GetStringAsync($"{Domain}{nextUrl}");
+                    var html = string.Empty;
+                    try
+                    {
+                        var response = await client.GetAsync($"{Domain}{nextUrl}");
+
+                        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                        {
+                            await Task.Delay(5000);
+                            continue;
+                        }
+
+                        html = await response.Content.ReadAsStringAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+
+
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
                     var chapter = new Chapter
