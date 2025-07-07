@@ -2,7 +2,9 @@
 {
     public enum ReaderEnum
     {
+        WebArchiveRoyalRoad,
         RoyalRoad,
-        Worm
+        Worm,
+        NovelFire
     }
 }

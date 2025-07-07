@@ -34,8 +34,12 @@
                 { "detected", 3 }, 
                 { "story", 3 },
                 { "without authorization", 5 },
+                { "unlawful", 5 },
+                { "author", 3 },
                 { "consent", 3 },
-                { "narrative", 3 }
+                { "narrative", 3 },
+                { "published elsewhere", 5 },
+                { "Support the author", 5 }
             };
 
             RemoveNodeWithTextProbability(chapterNode, swearWords);

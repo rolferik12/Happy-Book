@@ -28,21 +28,30 @@
             _document.Dispose();
         }
         public void WriteChapterFromHtml(string title, string html)
-        
+
         {
-            var body = _document.MainDocumentPart?.Document.Body ?? null;
+            try
+            {
 
-            if (body == null) { throw new MissingFieldException(nameof(body)); }
 
-            WriteHeader1(title, body);
+                var body = _document.MainDocumentPart?.Document.Body ?? null;
 
-            HtmlConverter converter = new HtmlConverter(_document.MainDocumentPart);
-            converter.ParseHtml(html);
+                if (body == null) { throw new MissingFieldException(nameof(body)); }
 
-            //Apply page break
-            var para = body.AppendChild(new Paragraph());
-            var run = para.AppendChild(new Run());
-            run.AppendChild(new Break { Type = BreakValues.Page });
+                WriteHeader1(title, body);
+
+                HtmlConverter converter = new HtmlConverter(_document.MainDocumentPart);
+                converter.ParseHtml(html);
+
+                //Apply page break
+                var para = body.AppendChild(new Paragraph());
+                var run = para.AppendChild(new Run());
+                run.AppendChild(new Break { Type = BreakValues.Page });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());   
+            }
         }
 
         private void WriteHeader1(string header, Body wordBody)

@@ -41,11 +41,17 @@
 
             switch (readerType)
             {
+                case ReaderEnum.WebArchiveRoyalRoad:
+                    reader = new WebArchiveRoyalReader(url, bookName, txtHeaderRemove.Text);
+                    break;
                 case ReaderEnum.RoyalRoad:
                     reader = new RoyalReader(url, bookName, txtHeaderRemove.Text);
                     break;
                 case ReaderEnum.Worm:
                     reader = new WormReader(url, bookName);
+                    break;
+                case ReaderEnum.NovelFire:
+                    reader = new NovelFireReader(url, bookName, txtHeaderRemove.Text);
                     break;
                 default:
                     throw new Exception("No reader selected.");

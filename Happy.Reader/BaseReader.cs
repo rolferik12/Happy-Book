@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Net;
 
     public abstract class BaseReader
     {
@@ -24,9 +25,14 @@
             int count = 0;
             using (var client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("user-agent",
+                    "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
+
                 while (count < chapterCount && !string.IsNullOrEmpty(nextUrl))
                 {
-                    var html = await client.GetStringAsync($"{Domain}{nextUrl}");
+                    var response = await client.GetAsync(nextUrl);
+                    var html = await response.Content.ReadAsStringAsync();
+                    //var html = await client.GetStringAsync($"{Domain}{nextUrl}");
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
                     var chapter = new Chapter
@@ -73,7 +79,7 @@
                     RemoveNodeWithTextProbability(child, keywords);
                     continue;
                 }
-                
+
                 int score = 0;
                 foreach (var keyword in keywords)
                 {
