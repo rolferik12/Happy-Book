@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Diagnostics.Metrics;
     using System.Net;
 
     public abstract class BaseReader
@@ -63,6 +64,38 @@
 
                     yield return chapter;
                 }
+            }
+        }
+
+        public async Task<Chapter> GetChapterAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("user-agent",
+                    "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
+                var html = string.Empty;
+                try
+                {
+                    var response = await client.GetAsync($"{Domain}{Url}");
+
+                    html = await response.Content.ReadAsStringAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(html);
+                var chapter = new Chapter
+                {
+                    NextChapter = GetNextChapterLink(doc),
+                    Html = GetChapterHtml(doc),
+                    Title = GetChapterTitle(doc, headerTextToRemove)
+                };
+
+                return chapter;
             }
         }
 

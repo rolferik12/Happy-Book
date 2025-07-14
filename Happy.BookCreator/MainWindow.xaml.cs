@@ -126,7 +126,7 @@
                 case OutputTypeEnum.None:
                     break;
                 case OutputTypeEnum.Docx:
-                    writer = new WordWriter($"{documentPath}");
+                    writer = new WordWriter(txtBookName.Text, documentPath);
                     break;
                 case OutputTypeEnum.Html:
                     writer = new HtmlWriter(txtBookName.Text, documentPath);
@@ -151,6 +151,7 @@
             });
 
             btnSave.Content = "Saved";
+            btnSave.IsEnabled = true;
         }
     }
 }

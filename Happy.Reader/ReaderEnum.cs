@@ -1,4 +1,4 @@
-﻿namespace Happy.BookCreator
+﻿namespace Happy.Reader
 {
     public enum ReaderEnum
     {

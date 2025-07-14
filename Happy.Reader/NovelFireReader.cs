@@ -21,6 +21,14 @@
 
             ChangeTableWidth(chapterNode, 100);
 
+            var swearWords = new Dictionary<string, int>
+            {
+                { "Search the NovelFire.net", 11},
+                { "Google", 9 },
+            };
+
+            RemoveNodeWithTextProbability(chapterNode, swearWords);
+
             return chapterNode.InnerHtml;
         }
 

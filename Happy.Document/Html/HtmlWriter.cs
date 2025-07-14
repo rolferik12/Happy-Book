@@ -10,9 +10,22 @@
         private string _storagePath = string.Empty;
         private string _name = string.Empty;
         private int _counter = 0;
+        private static List<char> CHARS = new List<char>()
+        {
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H',
+            'I',
+            'J'
+        };
         public HtmlWriter(string name, string path)
         {
-            _storagePath = path;
+            _storagePath = path + " html";
             _name = name;
             
         }
@@ -33,8 +46,9 @@
 
             for (int i = 0; i < _documents.Count; i++)
             {
+                var suffix = $"{i / 10 + 1}{CHARS[i % 10]}";
                 var currentDoc = _documents[i];
-                var filePath = _storagePath + (multipleFiles ? i + 1 : "");
+                var filePath = _storagePath + (multipleFiles ? suffix : "");
                 File.WriteAllText($"{filePath}.html", currentDoc.GetHtmlFileContent());
             }
         }
