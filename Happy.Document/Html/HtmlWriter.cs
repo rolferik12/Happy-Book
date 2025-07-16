@@ -1,5 +1,6 @@
 ﻿namespace Happy.Document.Html
 {
+    using Happy.Reader;
     using System;
 
     public class HtmlWriter : IWriter
@@ -42,7 +43,7 @@
             {
                 if (!Directory.Exists(_storagePath)) Directory.CreateDirectory(_storagePath);
                 _storagePath += $"\\{_name}";
-            }
+            } 
 
             for (int i = 0; i < _documents.Count; i++)
             {
@@ -56,12 +57,17 @@
         public void WriteChapterFromHtml(string title, string html)
         {
   
-            _currentDocument += $"<h1>{title}</h1><br />{html}";
+
+        }
+
+        public void WriteChapter(Chapter chapter)
+        {
+            _currentDocument += $"<h1>{chapter.Title}</h1><br />{chapter.Html}";
             _counter++;
 
             if (_counter == CHAPTERS_PER_FILE)
             {
-                
+
                 _documents.Add(new HtmlDocument(_currentDocument));
                 _currentDocument = string.Empty;
                 _counter = 0;

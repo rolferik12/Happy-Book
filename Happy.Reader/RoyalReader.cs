@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Collections.Generic;
     using System.Reflection.Metadata;
     using System.Web;
 
@@ -94,6 +95,11 @@
 
             return decodedTitle;
             
+        }
+
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        {
+            return new List<string>();
         }
     }
 }

@@ -1,26 +1,54 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using KokoroSharp;
+    using KokoroSharp.Core;
+    using KokoroSharp.Utilities;
+    using Microsoft.ML.OnnxRuntime;
     using System.Diagnostics.Metrics;
     using System.Net;
+    using System.Reflection;
+    using System.Text;
 
     public abstract class BaseReader
     {
+
         public abstract string Domain { get; }
         public string Url { get; set; }
         public string BookName { get; set; }
 
+        public KokoroWavSynthesizer? Synth;
+
+        private bool _tts = false;
+
         private List<string> headerTextToRemove = new List<string>();
 
-        public BaseReader(string url, string bookName, string removeHeaderText = "")
+        public BaseReader(string url, string bookName, string removeHeaderText = "", bool tts = false)
         {
             Url = url;
             BookName = bookName;
+            _tts = tts;
 
-            headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (tts)
+            {
+                var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (currentPath == null) return;
+
+                Task.Run(() =>
+                {
+                    KokoroTTS.LoadModel();
+                });
+                var options = new SessionOptions();
+                options.AppendExecutionProvider_CUDA();
+                Synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options);
+            }
+            else Synth = null;
+
+                headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount)
+        public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount, string ttsSavePath = "")
         {
             var nextUrl = Url;
             int count = 0;
@@ -52,12 +80,23 @@
 
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
+
+                    var paragraphs = GetParagraphs(doc).ToList();
+                    var title = GetChapterTitle(doc, headerTextToRemove);
+
                     var chapter = new Chapter
                     {
                         NextChapter = GetNextChapterLink(doc),
                         Html = GetChapterHtml(doc),
-                        Title = GetChapterTitle(doc, headerTextToRemove)
+                        Title = title,
+                        Paragraphs = paragraphs,
                     };
+
+                    if (_tts)
+                    {
+                        var savedTTs = await SaveTtsForChapter(chapter.Title, chapter.Paragraphs.ToList(), ttsSavePath);
+                    }
+                    
 
                     nextUrl = chapter.NextChapter;
                     count++;
@@ -65,6 +104,30 @@
                     yield return chapter;
                 }
             }
+        }
+
+        private async ValueTask<bool> SaveTtsForChapter(string title, List<string> paragraphs, string savePath)
+        {
+            if (Synth == null) return false;
+            KokoroVoice voice = KokoroVoiceManager.GetVoice("af_heart");
+            var text = string.Join("\n", paragraphs).Replace("’", "'");
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{title}. ");
+            sb.Append(text);
+
+            var tts = await Synth.SynthesizeAsync(sb.ToString(), voice);
+
+            if (tts == null) return false;
+
+            if (!Directory.Exists(savePath))
+                Directory.CreateDirectory(savePath);
+
+            var fileName = $@"{savePath}\{title.RemoveSpecialCharacters()}";
+
+            Synth.SaveAudioToFile(tts, $"{fileName}.wav");
+            File.WriteAllText($"{fileName}.txt", text);
+
+            return true;
         }
 
         public async Task<Chapter> GetChapterAsync()
@@ -123,7 +186,7 @@
             {
                 var child = children[i];
 
-                if (child.HasChildNodes)
+                if (child.Name != "p" && child.HasChildNodes)
                 {
                     RemoveNodeWithTextProbability(child, keywords);
                     continue;
@@ -187,6 +250,7 @@
             }
         }
 
+        public abstract IEnumerable<string> GetParagraphs(HtmlDocument document);
         public abstract string GetChapterHtml(HtmlDocument document);
         public abstract string GetNextChapterLink(HtmlDocument document);
         public abstract string GetChapterTitle(HtmlDocument document, List<string> headerTextToRemove);

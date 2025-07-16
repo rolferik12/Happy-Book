@@ -2,11 +2,14 @@
 {
     using Happy.Document;
     using Happy.Document.Html;
+    using Happy.Document.TTS;
     using Happy.Document.Word;
     using Happy.Reader;
     using System;
     using System.Buffers;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows;
@@ -40,6 +43,7 @@
             var chapterCount = 0;
 
             int.TryParse(txtChapterCount.Text, out chapterCount);
+            var outputType = Enum.Parse<OutputTypeEnum>(ddlOutputType.SelectedValue?.ToString() ?? "");
 
             BaseReader reader;
 
@@ -55,19 +59,30 @@
                     reader = new WormReader(url, bookName);
                     break;
                 case ReaderEnum.NovelFire:
-                    reader = new NovelFireReader(url, bookName, txtHeaderRemove.Text);
+                    reader = new NovelFireReader(url, bookName, txtHeaderRemove.Text, tts: outputType == OutputTypeEnum.TTS);
                     break;
                 default:
                     throw new Exception("No reader selected.");
             }
 
             int counter = 0;
-            await foreach (var chapter in reader.GetChapters(chapterCount))
+            var path = txtFolder.Text;
+            if (!path.EndsWith("\\")) path += "\\";
+            await foreach (var chapter in reader.GetChapters(chapterCount, $"{path}{txtBookName.Text} tts"))
             {
                 Chapters.Add(chapter);
                 btnSave.Content = $"Save ({Chapters.Count})";
+                if (outputType == OutputTypeEnum.TTS)
+                {
+                    btnImport.Content = $"Saved {Chapters.Count}";
+                }
                 dataGrid.ScrollIntoView(chapter);
                 counter++;
+            }
+
+            if (outputType == OutputTypeEnum.TTS)
+            {
+                btnImport.Content = $"Import/Save";
             }
 
             btnSave.IsEnabled = true;
@@ -131,6 +146,9 @@
                 case OutputTypeEnum.Html:
                     writer = new HtmlWriter(txtBookName.Text, documentPath);
                     break;
+                case OutputTypeEnum.TTS:
+                    writer = new KokoroWriter(txtBookName.Text, documentPath);
+                    break;
                 default:
                     break;
             }
@@ -144,14 +162,32 @@
             {
                 foreach (var chapter in Chapters)
                 {
-                    writer.WriteChapterFromHtml(chapter.Title, chapter.Html);
-                }
+                    writer.WriteChapter(chapter);
+                } 
 
                 writer.Save();
             });
 
             btnSave.Content = "Saved";
             btnSave.IsEnabled = true;
+        }
+
+        private void ddlOutputType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(ddlOutputType.SelectedValue?.ToString()))
+                return;
+
+            var outputType = Enum.Parse<OutputTypeEnum>(ddlOutputType.SelectedValue?.ToString() ?? "");
+
+            if (outputType != OutputTypeEnum.TTS)
+            {
+                btnSave.Visibility = Visibility.Visible;
+                btnImport.Content = "Import";
+                return;
+            }
+
+            btnSave.Visibility = Visibility.Hidden;
+            btnImport.Content = "Import/Save";
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Collections.Generic;
     using System.Reflection.Metadata;
     using System.Web;
 
@@ -24,14 +25,14 @@
                 { "Amazon", 9 },
                 { "Royal Road", 9 },
                 { "stolen", 6 },
-                { "novel", 3}, 
-                { "report", 3 }, 
-                { "pilfered", 3 }, 
-                { "violation", 3 }, 
-                { "content", 3 }, 
-                { "unauthorized", 4 }, 
-                { "theft", 3 }, 
-                { "detected", 3 }, 
+                { "novel", 3},
+                { "report", 3 },
+                { "pilfered", 3 },
+                { "violation", 3 },
+                { "content", 3 },
+                { "unauthorized", 4 },
+                { "theft", 3 },
+                { "detected", 3 },
                 { "story", 3 },
                 { "without authorization", 5 },
                 { "consent", 3 },
@@ -89,7 +90,12 @@
             }
 
             return decodedTitle;
-            
+
+        }
+
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        {
+            return new List<string>();
         }
     }
 }

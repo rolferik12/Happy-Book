@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Collections.Generic;
     using System.Web;
 
     public class WormReader : BaseReader
@@ -49,6 +50,11 @@
             }
 
             return string.Empty;
+        }
+
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        {
+            return new List<string>();
         }
     }
 }

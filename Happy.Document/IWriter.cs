@@ -1,5 +1,6 @@
 ﻿namespace Happy.Document
 {
+    using Happy.Reader;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -8,7 +9,7 @@
 
     public interface IWriter
     {
-        public void WriteChapterFromHtml(string title, string html);
+        public void WriteChapter(Chapter chapter);
         public void Save();
     }
 }

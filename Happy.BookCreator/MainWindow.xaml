@@ -45,7 +45,7 @@
             <TextBox Grid.Row="3" Grid.ColumnSpan="2" Height="23" Margin="0,26,0,0" Name="txtHeaderRemove" VerticalAlignment="Center" />
 
             <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Output type" Height="28" HorizontalAlignment="Left" Name="lblOutputType" VerticalAlignment="Top" />
-            <ComboBox Grid.Row="4" Grid.ColumnSpan="2" Name="ddlOutputType" Margin="0,26,0,0"/>
+            <ComboBox Grid.Row="4" Grid.ColumnSpan="2" Name="ddlOutputType" SelectionChanged="ddlOutputType_SelectionChanged" Margin="0,26,0,0"/>
 
             <Button Grid.Row="5" Grid.Column="0" x:Name="btnImport" Content="Import" IsEnabled="True" Click="btnImport_Click" HorizontalAlignment="Right" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
             <Button Grid.Row="5" Grid.Column="1" x:Name="btnSave" Content="Save" IsEnabled="False" Click="btnSave_Click"  HorizontalAlignment="Left" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>

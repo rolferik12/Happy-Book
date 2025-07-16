@@ -1,6 +1,7 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System.Collections.Generic;
     using System.Reflection.Metadata;
     using System.Web;
 
@@ -9,7 +10,7 @@
 
         public override string Domain { get; } = "";
 
-        public NovelFireReader(string url, string bookName, string headerToRemove) : base(url, bookName, headerToRemove)
+        public NovelFireReader(string url, string bookName, string headerToRemove, bool tts = false) : base(url, bookName, headerToRemove, tts: tts)
         {
         }
 
@@ -23,8 +24,10 @@
 
             var swearWords = new Dictionary<string, int>
             {
-                { "Search the NovelFire.net", 11},
-                { "Google", 9 },
+                { "website on google to access chapters of novels", 11 },
+                { "for more, visit", 11 },
+                { "search the", 5 },
+                { "novelfire.net", 11 }
             };
 
             RemoveNodeWithTextProbability(chapterNode, swearWords);
@@ -52,7 +55,7 @@
 
             if (headerNode == null) return string.Empty;
 
-           
+
             if (string.IsNullOrEmpty(headerNode.InnerText))
                 return string.Empty;
 
@@ -64,7 +67,32 @@
             }
 
             return decodedTitle;
-            
+
+        }
+
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        {
+            var chapterNode = document.DocumentNode.SelectSingleNode("//div[@id='content']");
+
+            if (chapterNode == null) return new List<string>();
+
+            var swearWords = new Dictionary<string, int>
+            {
+                { "website on google to access chapters of novels", 11 },
+                { "for more, visit", 11 },
+                { "search the", 5 },
+                { "novelfire.net", 11 }
+            };
+
+            RemoveNodeWithTextProbability(chapterNode, swearWords);
+
+            var paragraphNodes = chapterNode.ChildNodes.Where((child) => child.Name == "p");
+
+            if (paragraphNodes == null) return new List<string>();
+
+            var paragraphs = paragraphNodes.Select((p) => p.InnerText).ToList();
+
+            return paragraphs;
         }
     }
 }

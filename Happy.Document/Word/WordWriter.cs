@@ -2,6 +2,7 @@
 {
     using DocumentFormat.OpenXml.Packaging;
     using DocumentFormat.OpenXml.Wordprocessing;
+    using Happy.Reader;
     using HtmlToOpenXml;
 
     public class WordWriter : IWriter
@@ -55,6 +56,20 @@
         }
         public void WriteChapterFromHtml(string title, string html)
         {
+            
+        }
+
+        private void WriteHeader1(string header, Body wordBody)
+        {
+            var para = wordBody.AppendChild(new Paragraph());
+
+            var run = para.AppendChild(new Run());
+            run.AppendChild(new Text(header));
+            para.ParagraphProperties = new ParagraphProperties(new ParagraphStyleId() { Val = "Heading1" });
+        }
+
+        public void WriteChapter(Chapter chapter)
+        {
             if (_counter >= CHAPTERS_PER_FILE)
             {
                 _documents.Add(_document);
@@ -67,10 +82,10 @@
 
                 if (body == null) { throw new MissingFieldException(nameof(body)); }
 
-                WriteHeader1(title, body);
+                WriteHeader1(chapter.Title, body);
 
                 HtmlConverter converter = new HtmlConverter(_document.MainDocumentPart);
-                converter.ParseHtml(html);
+                converter.ParseHtml(chapter.Html);
 
                 //Apply page break
                 var para = body.AppendChild(new Paragraph());
@@ -80,17 +95,8 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());   
+                Console.WriteLine(ex.ToString());
             }
-        }
-
-        private void WriteHeader1(string header, Body wordBody)
-        {
-            var para = wordBody.AppendChild(new Paragraph());
-
-            var run = para.AppendChild(new Run());
-            run.AppendChild(new Text(header));
-            para.ParagraphProperties = new ParagraphProperties(new ParagraphStyleId() { Val = "Heading1" });
         }
     }
 }
