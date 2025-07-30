@@ -1,8 +1,10 @@
 ﻿namespace Happy.Reader
 {
     using HtmlAgilityPack;
+    using System;
     using System.Collections.Generic;
     using System.Reflection.Metadata;
+    using System.Text.RegularExpressions;
     using System.Web;
 
     public class NovelFireReader : BaseReader
@@ -70,7 +72,7 @@
 
         }
 
-        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document, string title = "")
         {
             var chapterNode = document.DocumentNode.SelectSingleNode("//div[@id='content']");
 
@@ -92,7 +94,43 @@
 
             var paragraphs = paragraphNodes.Select((p) => p.InnerText).ToList();
 
+            paragraphs = CleanParagraphs(paragraphs);
+
             return paragraphs;
+        }
+
+        private List<string> CleanParagraphs(List<string> paragraphs)
+        {
+            var cleanedList = new List<string>();
+
+            foreach (var paragraph in paragraphs)
+            {
+                var cleanedParagraph = paragraph.Replace("\n", "").Replace("\r", "");
+
+                cleanedParagraph = ReplaceNumbers(cleanedParagraph);
+                cleanedList.Add(cleanedParagraph);
+            }
+
+            return cleanedList;
+        }
+
+        private string ReplaceNumbers(string cleanedParagraph)
+        {
+            var replaced = cleanedParagraph;
+            var regex = new Regex("\\d*,\\d");
+
+            while (regex.IsMatch(replaced))
+            {
+                var match = regex.Match(replaced);
+                var substring = replaced.Substring(match.Index, match.Value.Length);
+
+                if (!substring.Contains(",")) continue;
+
+                var cleanedNumber = match.Value.Replace(",", "");
+                replaced = replaced.Replace(match.Value, cleanedNumber);
+            }
+
+            return replaced;
         }
     }
 }

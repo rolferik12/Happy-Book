@@ -5,6 +5,7 @@
     using KokoroSharp.Core;
     using KokoroSharp.Utilities;
     using Microsoft.ML.OnnxRuntime;
+    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.Metrics;
     using System.Net;
     using System.Reflection;
@@ -16,8 +17,6 @@
         public abstract string Domain { get; }
         public string Url { get; set; }
         public string BookName { get; set; }
-
-        public KokoroWavSynthesizer? Synth;
 
         private bool _tts = false;
 
@@ -32,20 +31,13 @@
 
             if (tts)
             {
-                var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                if (currentPath == null) return;
-
                 Task.Run(() =>
                 {
                     KokoroTTS.LoadModel();
                 });
-                var options = new SessionOptions();
-                options.AppendExecutionProvider_CUDA();
-                Synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options);
             }
-            else Synth = null;
 
-                headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+            headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount, string ttsSavePath = "")
@@ -81,8 +73,9 @@
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
 
-                    var paragraphs = GetParagraphs(doc).ToList();
                     var title = GetChapterTitle(doc, headerTextToRemove);
+                    var paragraphs = GetParagraphs(doc, title).ToList();
+
 
                     var chapter = new Chapter
                     {
@@ -96,7 +89,7 @@
                     {
                         var savedTTs = await SaveTtsForChapter(chapter.Title, chapter.Paragraphs.ToList(), ttsSavePath);
                     }
-                    
+
 
                     nextUrl = chapter.NextChapter;
                     count++;
@@ -108,26 +101,73 @@
 
         private async ValueTask<bool> SaveTtsForChapter(string title, List<string> paragraphs, string savePath)
         {
-            if (Synth == null) return false;
-            KokoroVoice voice = KokoroVoiceManager.GetVoice("af_heart");
-            var text = string.Join("\n", paragraphs).Replace("’", "'");
+            if (paragraphs.Count == 0) return false;
+
+            var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (currentPath == null) return false;
+
+            var options = new SessionOptions();
+            options.AppendExecutionProvider_CUDA();
+
+
+            KokoroVoice voice = KokoroVoiceManager.GetVoice("af_heart").MixWith(KokoroVoiceManager.GetVoice("af_nicole"), 0.8f, 0.2f);
+
+            var text = string.Join(".\n", paragraphs).Replace("’", "'");
             StringBuilder sb = new StringBuilder();
             sb.Append($"{title}. ");
             sb.Append(text);
 
-            var tts = await Synth.SynthesizeAsync(sb.ToString(), voice);
+            var indexCount = sb.Length / 5000;
+            var bytes = new List<byte>();
 
-            if (tts == null) return false;
+            for (int i = 0; i <= indexCount; i++)
+            {
+                var start = i * 5000;
+                var end = start + 5000 <= sb.Length ? 5000 : sb.Length - start;
+                var textToSpeak = sb.ToString().Substring(start, end);
+                
+                using (var synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options))
+                {
+                    if (synth == null) return false;
+                    var tts = await synth.SynthesizeAsync(textToSpeak, voice);
+
+                    if (tts == null) continue;
+
+                    bytes.AddRange(tts);
+                    synth.Dispose();
+                }
+            }
 
             if (!Directory.Exists(savePath))
                 Directory.CreateDirectory(savePath);
 
             var fileName = $@"{savePath}\{title.RemoveSpecialCharacters()}";
+            using (var synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options))
+            {
+                var soundFilePath = $"{fileName}.wav";
+                if (File.Exists(soundFilePath))
+                    File.Delete(soundFilePath);
 
-            Synth.SaveAudioToFile(tts, $"{fileName}.wav");
+                try
+                {
+                    synth.SaveAudioToFile(bytes.ToArray(), soundFilePath);
+                }
+                catch (Exception)
+                {
+                    if (!File.Exists(soundFilePath))
+                        throw;
+                }
+                finally
+                {
+                    synth.Dispose();
+                }
+
+            }
+
             File.WriteAllText($"{fileName}.txt", text);
 
             return true;
+
         }
 
         public async Task<Chapter> GetChapterAsync()
@@ -250,7 +290,7 @@
             }
         }
 
-        public abstract IEnumerable<string> GetParagraphs(HtmlDocument document);
+        public abstract IEnumerable<string> GetParagraphs(HtmlDocument document, string title = "");
         public abstract string GetChapterHtml(HtmlDocument document);
         public abstract string GetNextChapterLink(HtmlDocument document);
         public abstract string GetChapterTitle(HtmlDocument document, List<string> headerTextToRemove);

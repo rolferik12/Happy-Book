@@ -53,7 +53,7 @@
                     reader = new WebArchiveRoyalReader(url, bookName, txtHeaderRemove.Text);
                     break;
                 case ReaderEnum.RoyalRoad:
-                    reader = new RoyalReader(url, bookName, txtHeaderRemove.Text);
+                    reader = new RoyalReader(url, bookName, txtHeaderRemove.Text, tts: outputType == OutputTypeEnum.TTS);
                     break;
                 case ReaderEnum.Worm:
                     reader = new WormReader(url, bookName);

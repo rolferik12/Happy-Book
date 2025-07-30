@@ -93,7 +93,7 @@
 
         }
 
-        public override IEnumerable<string> GetParagraphs(HtmlDocument document)
+        public override IEnumerable<string> GetParagraphs(HtmlDocument document, string title = "")
         {
             return new List<string>();
         }
