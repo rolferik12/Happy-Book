@@ -118,39 +118,25 @@
             sb.Append(text);
 
             var indexCount = sb.Length / 5000;
-            var bytes = new List<byte>();
 
-            for (int i = 0; i <= indexCount; i++)
-            {
-                var start = i * 5000;
-                var end = start + 5000 <= sb.Length ? 5000 : sb.Length - start;
-                var textToSpeak = sb.ToString().Substring(start, end);
-                
-                using (var synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options))
-                {
-                    if (synth == null) return false;
-                    var tts = await synth.SynthesizeAsync(textToSpeak, voice);
-
-                    if (tts == null) continue;
-
-                    bytes.AddRange(tts);
-                    synth.Dispose();
-                }
-            }
-
-            if (!Directory.Exists(savePath))
-                Directory.CreateDirectory(savePath);
-
-            var fileName = $@"{savePath}\{title.RemoveSpecialCharacters()}";
             using (var synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options))
             {
+                if (synth == null) return false;
+                var tts = await synth.SynthesizeAsync(sb.ToString(), voice);
+
+                if (tts == null) return false;
+
+                if (!Directory.Exists(savePath))
+                    Directory.CreateDirectory(savePath);
+
+                var fileName = $@"{savePath}\{title.RemoveSpecialCharacters()}";
                 var soundFilePath = $"{fileName}.wav";
                 if (File.Exists(soundFilePath))
                     File.Delete(soundFilePath);
 
                 try
                 {
-                    synth.SaveAudioToFile(bytes.ToArray(), soundFilePath);
+                    synth.SaveAudioToFile(tts, soundFilePath);
                 }
                 catch (Exception)
                 {
@@ -162,11 +148,11 @@
                     synth.Dispose();
                 }
 
+
+                File.WriteAllText($"{fileName}.txt", text);
+
+                return true;
             }
-
-            File.WriteAllText($"{fileName}.txt", text);
-
-            return true;
 
         }
 
