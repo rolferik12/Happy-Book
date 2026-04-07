@@ -21,7 +21,11 @@
         {
             if (e.Action == NotifyCollectionChangedAction.Add && chaptersGrid.Items.Count > 0)
             {
-                chaptersGrid.ScrollIntoView(chaptersGrid.Items[^1]);
+                chaptersGrid.Dispatcher.BeginInvoke(() =>
+                {
+                    chaptersGrid.UpdateLayout();
+                    chaptersGrid.ScrollIntoView(chaptersGrid.Items[^1]);
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 

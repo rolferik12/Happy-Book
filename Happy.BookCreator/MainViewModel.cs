@@ -207,7 +207,7 @@ namespace Happy.BookCreator
             {
                 await foreach (var chapter in reader.GetChapters(chapterCount, _importCts.Token))
                 {
-                    Chapters.Insert(0, chapter);
+                    Chapters.Add(chapter);
                     SaveButtonText = $"Save ({Chapters.Count})";
                 }
             }
