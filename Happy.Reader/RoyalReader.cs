@@ -11,7 +11,7 @@
 
         public override string Domain { get; } = "https://www.royalroad.com";
 
-        public RoyalReader(string url, string bookName, string headerToRemove, bool tts = false) : base(url, bookName, headerToRemove, tts)
+        public RoyalReader(string url, string bookName, string headerToRemove, string headerToReplace = "") : base(url, bookName, headerToRemove, headerToReplace)
         {
         }
 
@@ -48,7 +48,9 @@
 
             ChangeTableWidth(chapterNode, 100);
 
-            return chapterNode.InnerHtml;
+            var chapterHtml = chapterNode.InnerHtml.Replace("\n", "<br/>").Replace("&nbsp;", "").Replace("p><br/><p", "p><p");
+
+            return chapterHtml;
         }
 
         public override string GetNextChapterLink(HtmlDocument document)
@@ -166,7 +168,7 @@
 
                 var cleanedParagraph = paragraph.Replace("\n", "").Replace("\r", "");
 
-                cleanedParagraph = ReplaceNumbers(cleanedParagraph);
+                cleanedParagraph = ReplaceNumbers(cleanedParagraph); 
                 cleanedParagraph = ReplaceFractions(cleanedParagraph);
                 cleanedParagraph = ReplaceFractionPer(cleanedParagraph);
                 cleanedList.Add(cleanedParagraph);

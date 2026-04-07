@@ -5,59 +5,336 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Happy.BookCreator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Happy Book Creator"
+        Height="600" Width="850"
+        Background="#F3F4F6"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="#4F46E5"
+                                CornerRadius="6"
+                                Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#4338CA"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="#A5B4FC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="White"
+                                BorderBrush="#D1D5DB"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="12,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F9FAFB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="#DC2626"
+                                CornerRadius="6"
+                                Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#B91C1C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition Height="60"/>
-            </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Content="Book name" Height="28" HorizontalAlignment="Left" Name="lblBookName" VerticalAlignment="Top" />
-            <TextBox Grid.Row="0" Grid.Column="0" Height="23" Margin="0,26,0,0" Name="txtBookName" VerticalAlignment="Center"/>
+        <!-- Form Card -->
+        <Border Grid.Row="0" Background="White" CornerRadius="10"
+                Padding="24" Margin="0,0,0,16">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Color="Black"/>
+            </Border.Effect>
 
-            <Label Grid.Row="0" Grid.Column="1" Content="Folder" Height="28" HorizontalAlignment="Left" Name="lblSaveFolder" VerticalAlignment="Top" />
-            <TextBox Grid.Row="0"  Grid.Column="1" Height="23" Margin="0,26,53,0" Name="txtFolder" VerticalAlignment="Top"/>
-            <Button Name="btnBrowse" Grid.Row="0" Grid.Column="1" Content="Browse" HorizontalAlignment="Right" Margin="0,26,0,0" VerticalAlignment="Top" Height="23" Width="53" Click="btnBrowse_Click"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <Label Grid.Row="1" Grid.ColumnSpan="2" Content="Url" Height="28" HorizontalAlignment="Left" Name="lblUrl" VerticalAlignment="Top" />
-            <TextBox Grid.Row="1" Grid.ColumnSpan="2"  Height="23" Margin="0,26,1,0" Name="txtUrl" VerticalAlignment="Center" />
+                <!-- Row 0: Book Name / Folder -->
+                <StackPanel Grid.Row="0" Grid.Column="0">
+                    <TextBlock Text="Book Name" Style="{StaticResource SectionLabel}"/>
+                    <TextBox Text="{Binding BookName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
 
-            <Label Grid.Row="2" Grid.Column="0" Content="Reader" Height="28" HorizontalAlignment="Left" Name="lblReader" VerticalAlignment="Top" />
-            <ComboBox Grid.Row="2" Grid.Column="0" Name="ddlReader" Margin="0,26,0,0"/>
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <TextBlock Text="Folder" Style="{StaticResource SectionLabel}"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0"
+                                Command="{Binding BrowseCommand}" Style="{StaticResource SecondaryButton}"/>
+                        <TextBox Text="{Binding FolderPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}"/>
+                    </DockPanel>
+                </StackPanel>
 
-            <Label Grid.Row="2" Grid.Column="1" Content="Chapters" Height="28" HorizontalAlignment="Left" Name="lblCount" VerticalAlignment="Top" />
-            <TextBox Grid.Row="2" Grid.Column="1" Height="23" Margin="0,26,0,0" Name="txtChapterCount" VerticalAlignment="Center" PreviewTextInput="txtChapterCount_PreviewTextInput" DataObject.Pasting="txtChapterCount_Pasting" />
+                <!-- Row 2: URL (full width) -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                    <TextBlock Text="URL" Style="{StaticResource SectionLabel}"/>
+                    <TextBox Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
 
-            <Label Grid.Row="3" Grid.ColumnSpan="2" Content="Remove text from header" Height="28" HorizontalAlignment="Left" Name="lblRemoveHeader" VerticalAlignment="Top" />
-            <TextBox Grid.Row="3" Grid.ColumnSpan="2" Height="23" Margin="0,26,0,0" Name="txtHeaderRemove" VerticalAlignment="Center" />
+                <!-- Row 4: Reader / Chapters -->
+                <StackPanel Grid.Row="4" Grid.Column="0">
+                    <TextBlock Text="Reader" Style="{StaticResource SectionLabel}"/>
+                    <ComboBox ItemsSource="{Binding ReaderOptions}"
+                              SelectedItem="{Binding SelectedReader}"
+                              Style="{StaticResource ModernComboBox}"/>
+                </StackPanel>
 
-            <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Output type" Height="28" HorizontalAlignment="Left" Name="lblOutputType" VerticalAlignment="Top" />
-            <ComboBox Grid.Row="4" Grid.ColumnSpan="2" Name="ddlOutputType" SelectionChanged="ddlOutputType_SelectionChanged" Margin="0,26,0,0"/>
+                <StackPanel Grid.Row="4" Grid.Column="2">
+                    <TextBlock Text="Chapters" Style="{StaticResource SectionLabel}"/>
+                    <TextBox Text="{Binding ChapterCount, UpdateSourceTrigger=PropertyChanged}"
+                             PreviewTextInput="txtChapterCount_PreviewTextInput"
+                             DataObject.Pasting="txtChapterCount_Pasting"
+                             Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
 
-            <Button Grid.Row="5" Grid.Column="0" x:Name="btnImport" Content="Import" IsEnabled="True" Click="btnImport_Click" HorizontalAlignment="Right" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
-            <Button Grid.Row="5" Grid.Column="1" x:Name="btnSave" Content="Save" IsEnabled="False" Click="btnSave_Click"  HorizontalAlignment="Left" Margin="15, 15" VerticalAlignment="Top" Height="30" Width="75"/>
-        </Grid>
-        
-        <ContentControl Grid.Row="1">
-            <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                <!-- Row 6: Header Remove / Header Replace -->
+                <StackPanel Grid.Row="6" Grid.Column="0">
+                    <TextBlock Text="Remove from Header" Style="{StaticResource SectionLabel}"/>
+                    <TextBox Text="{Binding HeaderRemoveText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Semicolon-separated text to remove, e.g. Book Title;Volume 1"
+                             Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="6" Grid.Column="2">
+                    <TextBlock Text="Replace in Header" Style="{StaticResource SectionLabel}"/>
+                    <TextBox Text="{Binding HeaderReplaceText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Semicolon-separated find=replace pairs, e.g. Chapter=Ch;Vol.=Volume"
+                             Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
+
+                <!-- Row 8: Output Type (full width) -->
+                <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3">
+                    <TextBlock Text="Output Type" Style="{StaticResource SectionLabel}"/>
+                    <ComboBox ItemsSource="{Binding OutputTypeOptions}"
+                              SelectedItem="{Binding SelectedOutputType}"
+                              Style="{StaticResource ModernComboBox}"/>
+                </StackPanel>
+
+                <!-- Row 10: Buttons -->
+                <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3"
+                            Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Margin="0,0,12,0" MinWidth="100" Height="36" FontSize="13" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Content" Value="{Binding ImportButtonText}"/>
+                                <Setter Property="Command" Value="{Binding ImportCommand}"/>
+                                <Setter Property="IsEnabled" Value="{Binding IsImportEnabled}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="#4F46E5" CornerRadius="6" Padding="16,0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#4338CA"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="border" Property="Background" Value="#A5B4FC"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStopVisible}" Value="True">
+                                        <Setter Property="Content" Value="Stop"/>
+                                        <Setter Property="Command" Value="{Binding StopCommand}"/>
+                                        <Setter Property="IsEnabled" Value="True"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="border" Background="#DC2626" CornerRadius="6" Padding="16,0">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="border" Property="Background" Value="#B91C1C"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="{Binding SaveButtonText}"
+                            Command="{Binding SaveCommand}"
+                            IsEnabled="{Binding IsSaveEnabled}"
+                            Visibility="{Binding IsSaveVisible, Converter={StaticResource BoolToVis}}"
+                            Style="{StaticResource PrimaryButton}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- DataGrid Card -->
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="2">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Color="Black"/>
+            </Border.Effect>
+
+            <DataGrid x:Name="chaptersGrid"
+                      ItemsSource="{Binding Chapters}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#E5E7EB"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      RowBackground="White"
+                      AlternatingRowBackground="#F9FAFB"
+                      FontSize="13">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F9FAFB"/>
+                        <Setter Property="Foreground" Value="#6B7280"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="BorderBrush" Value="#E5E7EB"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="1*"  />
+                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
-        </ContentControl>
-
+        </Border>
     </Grid>
 </Window>

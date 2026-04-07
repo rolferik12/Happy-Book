@@ -12,7 +12,7 @@
 
         public override string Domain { get; } = "";
 
-        public NovelFireReader(string url, string bookName, string headerToRemove, bool tts = false) : base(url, bookName, headerToRemove, tts: tts)
+        public NovelFireReader(string url, string bookName, string headerToRemove, string headerToReplace = "") : base(url, bookName, headerToRemove, headerToReplace)
         {
         }
 

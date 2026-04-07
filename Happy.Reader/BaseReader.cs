@@ -1,15 +1,9 @@
-﻿namespace Happy.Reader
+namespace Happy.Reader
 {
     using HtmlAgilityPack;
-    using KokoroSharp;
-    using KokoroSharp.Core;
-    using KokoroSharp.Utilities;
-    using Microsoft.ML.OnnxRuntime;
-    using System.ComponentModel.DataAnnotations;
-    using System.Diagnostics.Metrics;
     using System.Net;
-    using System.Reflection;
-    using System.Text;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
 
     public abstract class BaseReader
     {
@@ -18,29 +12,25 @@
         public string Url { get; set; }
         public string BookName { get; set; }
 
-        private bool _tts = false;
-
         private List<string> headerTextToRemove = new List<string>();
+        private Dictionary<string, string> headerTextToReplace = new Dictionary<string, string>();
 
-        public BaseReader(string url, string bookName, string removeHeaderText = "", bool tts = false)
+        public BaseReader(string url, string bookName, string removeHeaderText = "", string replaceHeaderText = "")
         {
             Url = url;
             BookName = bookName;
-            _tts = tts;
-
-
-            if (tts)
-            {
-                Task.Run(() =>
-                {
-                    KokoroTTS.LoadModel();
-                });
-            }
 
             headerTextToRemove = removeHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            foreach (var entry in replaceHeaderText.Split(';', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = entry.Split('=', 2);
+                if (parts.Length == 2)
+                    headerTextToReplace[parts[0]] = parts[1];
+            }
         }
 
-        public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount, string ttsSavePath = "")
+        public async IAsyncEnumerable<Chapter> GetChapters(int chapterCount, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var nextUrl = Url;
             int count = 0;
@@ -51,18 +41,21 @@
 
                 while (count < chapterCount && !string.IsNullOrEmpty(nextUrl))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var html = string.Empty;
                     try
                     {
-                        var response = await client.GetAsync($"{Domain}{nextUrl}");
+                        var requestUrl = ResolveUrl(nextUrl);
+                        var response = await client.GetAsync(requestUrl, cancellationToken);
 
                         if (response.StatusCode == HttpStatusCode.TooManyRequests)
                         {
-                            await Task.Delay(5000);
+                            await Task.Delay(5000, cancellationToken);
                             continue;
                         }
 
-                        html = await response.Content.ReadAsStringAsync();
+                        html = await response.Content.ReadAsStringAsync(cancellationToken);
                     }
                     catch (Exception ex)
                     {
@@ -74,6 +67,8 @@
                     doc.LoadHtml(html);
 
                     var title = GetChapterTitle(doc, headerTextToRemove);
+                    foreach (var kvp in headerTextToReplace)
+                        title = title.Replace(kvp.Key, kvp.Value);
                     var paragraphs = GetParagraphs(doc, title).ToList();
 
 
@@ -85,11 +80,6 @@
                         Paragraphs = paragraphs,
                     };
 
-                    if (_tts)
-                    {
-                        var savedTTs = await SaveTtsForChapter(chapter.Title, chapter.Paragraphs.ToList(), ttsSavePath);
-                    }
-
 
                     nextUrl = chapter.NextChapter;
                     count++;
@@ -97,63 +87,6 @@
                     yield return chapter;
                 }
             }
-        }
-
-        private async ValueTask<bool> SaveTtsForChapter(string title, List<string> paragraphs, string savePath)
-        {
-            if (paragraphs.Count == 0) return false;
-
-            var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (currentPath == null) return false;
-
-            var options = new SessionOptions();
-            options.AppendExecutionProvider_CUDA();
-
-
-            KokoroVoice voice = KokoroVoiceManager.GetVoice("af_heart").MixWith(KokoroVoiceManager.GetVoice("af_nicole"), 0.8f, 0.2f);
-
-            var text = string.Join(".\n", paragraphs).Replace("’", "'");
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"{title}. ");
-            sb.Append(text);
-
-            var indexCount = sb.Length / 5000;
-
-            using (var synth = new KokoroWavSynthesizer($@"{currentPath}\kokoro.onnx", options))
-            {
-                if (synth == null) return false;
-                var tts = await synth.SynthesizeAsync(sb.ToString(), voice);
-
-                if (tts == null) return false;
-
-                if (!Directory.Exists(savePath))
-                    Directory.CreateDirectory(savePath);
-
-                var fileName = $@"{savePath}\{title.RemoveSpecialCharacters()}";
-                var soundFilePath = $"{fileName}.wav";
-                if (File.Exists(soundFilePath))
-                    File.Delete(soundFilePath);
-
-                try
-                {
-                    synth.SaveAudioToFile(tts, soundFilePath);
-                }
-                catch (Exception)
-                {
-                    if (!File.Exists(soundFilePath))
-                        throw;
-                }
-                finally
-                {
-                    synth.Dispose();
-                }
-
-
-                File.WriteAllText($"{fileName}.txt", text);
-
-                return true;
-            }
-
         }
 
         public async Task<Chapter> GetChapterAsync()
@@ -181,11 +114,36 @@
                 {
                     NextChapter = GetNextChapterLink(doc),
                     Html = GetChapterHtml(doc),
-                    Title = GetChapterTitle(doc, headerTextToRemove)
+                    Title = ApplyHeaderReplacements(GetChapterTitle(doc, headerTextToRemove))
                 };
 
                 return chapter;
             }
+        }
+
+        private string ApplyHeaderReplacements(string title)
+        {
+            foreach (var kvp in headerTextToReplace)
+                title = title.Replace(kvp.Key, kvp.Value);
+            return title;
+        }
+
+        private string ResolveUrl(string url)
+        {
+            if (Uri.TryCreate(url, UriKind.Absolute, out var absoluteUri)
+                && (absoluteUri.Scheme == Uri.UriSchemeHttp || absoluteUri.Scheme == Uri.UriSchemeHttps))
+            {
+                return url;
+            }
+
+            if (!string.IsNullOrEmpty(Domain))
+            {
+                var baseUri = new Uri(Domain);
+                if (Uri.TryCreate(baseUri, url, out var resolved))
+                    return resolved.AbsoluteUri;
+            }
+
+            return url;
         }
 
         internal void ChangeTableWidth(HtmlNode node, int percentage)

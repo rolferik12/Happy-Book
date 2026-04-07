@@ -10,7 +10,7 @@
 
         public override string Domain { get; } = "https://web.archive.org";
 
-        public WebArchiveRoyalReader(string url, string bookName, string headerToRemove) : base(url, bookName, headerToRemove)
+        public WebArchiveRoyalReader(string url, string bookName, string headerToRemove, string headerToReplace = "") : base(url, bookName, headerToRemove, headerToReplace)
         {
         }
 
