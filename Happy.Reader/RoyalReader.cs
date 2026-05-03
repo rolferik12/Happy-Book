@@ -48,7 +48,17 @@
 
             ChangeTableWidth(chapterNode, 100);
 
-            return chapterNode.InnerHtml;
+            // Convert newlines to <br/> so inline content (e.g. status boxes) preserves
+            // line breaks, then strip <br/> that landed between block-level tags to keep
+            // proper paragraph spacing.
+            const string blockTags = "p|div|table|thead|tbody|tr|td|th|h[1-6]|ul|ol|li|blockquote|hr|pre";
+            var chapterHtml = chapterNode.InnerHtml.Replace("\n", "<br/>");
+            chapterHtml = Regex.Replace(chapterHtml,
+                $@"(<\/(?:{blockTags})>)(?:<br\/>)+(<(?:{blockTags})[\s>/])",
+                "$1$2",
+                RegexOptions.IgnoreCase);
+
+            return chapterHtml;
         }
 
         public override string GetNextChapterLink(HtmlDocument document)
