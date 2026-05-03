@@ -85,7 +85,11 @@
                 WriteHeader1(chapter.Title, body);
 
                 HtmlConverter converter = new HtmlConverter(_document.MainDocumentPart);
-                converter.ParseHtml(chapter.Html);
+                var paragraphs = converter.Parse(chapter.Html);
+                foreach (var paragraph in paragraphs)
+                {
+                    body.Append(paragraph);
+                }
 
                 //Apply page break
                 var para = body.AppendChild(new Paragraph());

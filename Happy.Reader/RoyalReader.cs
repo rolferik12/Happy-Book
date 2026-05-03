@@ -48,9 +48,7 @@
 
             ChangeTableWidth(chapterNode, 100);
 
-            var chapterHtml = chapterNode.InnerHtml.Replace("\n", "<br/>").Replace("&nbsp;", "").Replace("p><br/><p", "p><p");
-
-            return chapterHtml;
+            return chapterNode.InnerHtml;
         }
 
         public override string GetNextChapterLink(HtmlDocument document)
