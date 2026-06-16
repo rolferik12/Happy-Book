@@ -14,6 +14,7 @@ namespace Happy.Reader
 
         private List<string> headerTextToRemove = new List<string>();
         private Dictionary<string, string> headerTextToReplace = new Dictionary<string, string>();
+        private HashSet<string> hiddenCssClasses = new HashSet<string>();
 
         public BaseReader(string url, string bookName, string removeHeaderText = "", string replaceHeaderText = "")
         {
@@ -164,34 +165,150 @@ namespace Happy.Reader
 
         internal void RemoveNodeWithTextProbability(HtmlNode node, Dictionary<string, int> keywords, int scoreMax = 9)
         {
-            var children = node.ChildNodes;
+            var children = node.ChildNodes.ToList();
 
-            for (int i = 0; i < children.Count; i++)
+            foreach (var child in children)
             {
-                var child = children[i];
-
-                if (child.Name != "p" && child.HasChildNodes)
+                // Recursively check child nodes first
+                if (child.HasChildNodes)
                 {
-                    RemoveNodeWithTextProbability(child, keywords);
-                    continue;
+                    RemoveNodeWithTextProbability(child, keywords, scoreMax);
                 }
+
+                // Skip if not a content element
+                if (child.Name != "p" && child.Name != "div" && child.Name != "span")
+                    continue;
+
+                var textToCheck = GetNodeTextIncludingHidden(child);
+                var isHidden = IsNodeHidden(child);
 
                 int score = 0;
                 foreach (var keyword in keywords)
                 {
-                    if (child.InnerText.ToLower().Contains(keyword.Key.ToLower()))
+                    if (textToCheck.ToLower().Contains(keyword.Key.ToLower()))
                         score += keyword.Value;
                 }
 
-                if (score > 3 && score <= scoreMax)
+                // Remove if score exceeds threshold, OR if it's hidden and has ANY suspicious keywords
+                if (score > scoreMax || (isHidden && score > 0))
                 {
-                    continue;
+                    child.Remove();
+                }
+            }
+        }
+
+        internal string GetNodeTextIncludingHidden(HtmlNode node)
+        {
+            var allText = new System.Text.StringBuilder();
+
+            void CollectText(HtmlNode current)
+            {
+                if (current.NodeType == HtmlNodeType.Text)
+                {
+                    allText.Append(current.InnerText);
+                    return;
                 }
 
-                if (score > scoreMax)
+                if (current.NodeType == HtmlNodeType.Element)
                 {
-                    node.RemoveChild(child);
+                    foreach (var child in current.ChildNodes)
+                    {
+                        CollectText(child);
+                    }
+                }
+            }
+
+            CollectText(node);
+            return allText.ToString();
+        }
+
+        internal bool IsNodeHidden(HtmlNode node)
+        {
+            if (node.NodeType != HtmlNodeType.Element)
+                return false;
+
+            // Check for 'hidden' attribute
+            if (node.Attributes.Contains("hidden"))
+                return true;
+
+            // Check inline style for display:none or visibility:hidden
+            var styleAttr = node.GetAttributeValue("style", "");
+            if (!string.IsNullOrEmpty(styleAttr))
+            {
+                var styleLower = styleAttr.ToLower().Replace(" ", "");
+                if (styleLower.Contains("display:none") || 
+                    styleLower.Contains("visibility:hidden") ||
+                    styleLower.Contains("opacity:0"))
+                    return true;
+            }
+
+            // Check CSS classes that commonly indicate hidden content
+            var classAttr = node.GetAttributeValue("class", "");
+            if (!string.IsNullOrEmpty(classAttr))
+            {
+                var classLower = classAttr.ToLower();
+
+                // Check common hidden class names
+                var hiddenClasses = new[] { "hidden", "d-none", "hide", "invisible", "sr-only", "visually-hidden" };
+                foreach (var hiddenClass in hiddenClasses)
+                {
+                    if (classLower.Contains(hiddenClass))
+                        return true;
+                }
+
+                // Check against CSS classes parsed from style tags (for obfuscated/random class names)
+                var classes = classAttr.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var cls in classes)
+                {
+                    if (hiddenCssClasses.Contains(cls))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal void ExtractHiddenCssClasses(HtmlDocument document)
+        {
+            hiddenCssClasses.Clear();
+
+            // Find all <style> tags in the document
+            var styleNodes = document.DocumentNode.SelectNodes("//style");
+            if (styleNodes == null)
+                return;
+
+            foreach (var styleNode in styleNodes)
+            {
+                var cssContent = styleNode.InnerText;
+                if (string.IsNullOrWhiteSpace(cssContent))
                     continue;
+
+                // Parse CSS to find classes with hiding rules
+                ParseCssForHiddenClasses(cssContent);
+            }
+        }
+
+        private void ParseCssForHiddenClasses(string css)
+        {
+            // Use regex to find CSS rules: selector { rules }
+            // This handles multi-line CSS and complex selectors better
+            var rulePattern = @"\.([^\s\{\.#\[\]:>+~]+)\s*\{([^\}]+)\}";
+            var matches = System.Text.RegularExpressions.Regex.Matches(css, rulePattern, System.Text.RegularExpressions.RegexOptions.Singleline);
+
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                if (match.Groups.Count < 3)
+                    continue;
+
+                var className = match.Groups[1].Value;
+                var rules = match.Groups[2].Value.ToLower();
+
+                // Check if this rule hides content
+                if (rules.Contains("display") && rules.Contains("none") ||
+                    rules.Contains("visibility") && rules.Contains("hidden") ||
+                    rules.Contains("opacity") && (rules.Contains(":0") || rules.Contains(": 0")))
+                {
+                    hiddenCssClasses.Add(className);
                 }
             }
         }

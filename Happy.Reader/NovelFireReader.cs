@@ -22,6 +22,9 @@
 
             if (chapterNode == null) return string.Empty;
 
+            // Extract CSS classes that hide content (for obfuscated/random class names)
+            ExtractHiddenCssClasses(document);
+
             ChangeTableWidth(chapterNode, 100);
 
             var swearWords = new Dictionary<string, int>
