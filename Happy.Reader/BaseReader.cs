@@ -70,6 +70,7 @@ namespace Happy.Reader
                     var title = GetChapterTitle(doc, headerTextToRemove);
                     foreach (var kvp in headerTextToReplace)
                         title = title.Replace(kvp.Key, kvp.Value);
+                    title = CapitalizeFirstLetter(title);
                     var paragraphs = GetParagraphs(doc, title).ToList();
 
 
@@ -126,7 +127,34 @@ namespace Happy.Reader
         {
             foreach (var kvp in headerTextToReplace)
                 title = title.Replace(kvp.Key, kvp.Value);
-            return title;
+            return CapitalizeFirstLetter(title);
+        }
+
+        private string CapitalizeFirstLetter(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            text = text.Trim();
+            if (text.Length == 0)
+                return text;
+
+            // Find the first letter character
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (char.IsLetter(text[i]))
+                {
+                    if (char.IsLower(text[i]))
+                    {
+                        return text.Substring(0, i) + char.ToUpper(text[i]) + text.Substring(i + 1);
+                    }
+                    // Already uppercase
+                    return text;
+                }
+            }
+
+            // No letters found
+            return text;
         }
 
         private string ResolveUrl(string url)
