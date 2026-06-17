@@ -11,6 +11,8 @@ namespace Happy.Reader
         public abstract string Domain { get; }
         public string Url { get; set; }
         public string BookName { get; set; }
+        public TableFormatMode TableFormatMode { get; set; } = TableFormatMode.NoFormatting;
+        public bool TreatTwoColumnTablesAsSmall { get; set; } = false;
 
         private List<string> headerTextToRemove = new List<string>();
         private Dictionary<string, string> headerTextToReplace = new Dictionary<string, string>();
@@ -377,6 +379,258 @@ namespace Happy.Reader
                 node.RemoveChild(child);
                 i--;
             }
+        }
+
+        internal void FormatTables(HtmlNode node)
+        {
+            if (TableFormatMode == TableFormatMode.NoFormatting)
+                return;
+
+            var tables = node.SelectNodes(".//table");
+            if (tables == null || tables.Count == 0)
+                return;
+
+            foreach (var table in tables.ToList())
+            {
+                var formattedText = FormatTable(table);
+                if (!string.IsNullOrEmpty(formattedText))
+                {
+                    var replacement = HtmlNode.CreateNode(formattedText);
+
+                    // Get the parent and the position of the table
+                    var parent = table.ParentNode;
+                    var tableIndex = parent.ChildNodes.IndexOf(table);
+
+                    // Replace the table
+                    parent.ReplaceChild(replacement, table);
+
+                    // Clean up whitespace/br tags immediately after the replacement
+                    var nextIndex = tableIndex;
+                    while (nextIndex < parent.ChildNodes.Count)
+                    {
+                        var nextNode = parent.ChildNodes[nextIndex];
+
+                        // If it's a text node with only whitespace, remove it
+                        if (nextNode.NodeType == HtmlNodeType.Text && string.IsNullOrWhiteSpace(nextNode.InnerText))
+                        {
+                            nextNode.Remove();
+                            continue;
+                        }
+
+                        // If it's a br tag, remove it
+                        if (nextNode.Name == "br")
+                        {
+                            nextNode.Remove();
+                            continue;
+                        }
+
+                        // Stop at the first non-whitespace, non-br element
+                        break;
+                    }
+                }
+            }
+        }
+
+        private string FormatTable(HtmlNode table)
+        {
+            var rows = table.SelectNodes(".//tr");
+            if (rows == null || rows.Count == 0)
+                return string.Empty;
+
+            var tableData = new List<List<HtmlNode>>();
+
+            foreach (var row in rows)
+            {
+                var cells = row.SelectNodes(".//th|.//td");
+                if (cells == null || cells.Count == 0)
+                    continue;
+
+                var rowData = new List<HtmlNode>();
+                foreach (var cell in cells)
+                {
+                    rowData.Add(cell);
+                }
+                tableData.Add(rowData);
+            }
+
+            if (tableData.Count == 0)
+                return string.Empty;
+
+            int rowCount = tableData.Count;
+            int colCount = tableData.Max(r => r.Count);
+
+            bool isSmallTable = (rowCount == 1 && colCount == 2) || 
+                               (rowCount == 2 && colCount == 1) ||
+                               (rowCount == 2 && colCount == 2) ||
+                               (TreatTwoColumnTablesAsSmall && colCount == 2);
+
+            if (isSmallTable)
+            {
+                return FormatSmallTable(tableData, rowCount, colCount);
+            }
+            else
+            {
+                return FormatLargeTable(tableData, rowCount, colCount);
+            }
+        }
+
+        private string GetCellHtml(HtmlNode cell)
+        {
+            var html = cell.InnerHtml.Trim();
+
+            // Replace closing </p> tags followed by opening <p> tags with <br/>
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"</p>\s*<p[^>]*>", "<br/>");
+
+            // Remove any remaining opening <p> tags
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"<p[^>]*>", "");
+
+            // Remove any remaining closing </p> tags
+            html = html.Replace("</p>", "");
+
+            // Normalize br tags to <br/>
+            html = html.Replace("<br>", "<br/>").Replace("<br />", "<br/>");
+
+            // Clean up multiple consecutive <br/> tags (more than 2)
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"(<br\s*/?>){3,}", "<br/><br/>");
+
+            // Remove ALL leading and trailing <br/> tags (not just one)
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"^(<br\s*/?>)+", "");
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"(<br\s*/?>)+$", "");
+
+            html = System.Web.HttpUtility.HtmlDecode(html);
+            return html.Trim();
+        }
+
+        private string CleanCellText(string html, bool isHeader)
+        {
+            // For headers, we want to strip out strong/b tags since we'll re-apply them
+            // This prevents nested <strong> tags
+            if (isHeader)
+            {
+                // Extract text from <strong> and <b> tags but keep other formatting like <em>, <i>
+                html = System.Text.RegularExpressions.Regex.Replace(html, @"<strong[^>]*>(.*?)</strong>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                html = System.Text.RegularExpressions.Regex.Replace(html, @"<b[^>]*>(.*?)</b>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            }
+
+            // Clean up multiple consecutive spaces (but keep <br/> tags intact)
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"[ \t]{2,}", " ");
+
+            // Clean up spaces around <br/> tags
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"\s*<br\s*/?\>\s*", "<br/>");
+
+            html = html.Trim();
+
+            return html;
+        }
+
+        private string FormatSmallTable(List<List<HtmlNode>> tableData, int rowCount, int colCount)
+        {
+            var result = new System.Text.StringBuilder();
+            result.Append("<p>");
+
+            if (rowCount == 1 && colCount == 2)
+            {
+                var headerHtml = CleanCellText(GetCellHtml(tableData[0][0]), true);
+                var valueHtml = CleanCellText(GetCellHtml(tableData[0][1]), false);
+                result.Append($"<strong>{headerHtml}</strong><br/>{valueHtml}");
+            }
+            else if (rowCount == 2 && colCount == 1)
+            {
+                var headerHtml = CleanCellText(GetCellHtml(tableData[0][0]), true);
+                var valueHtml = CleanCellText(GetCellHtml(tableData[1][0]), false);
+                result.Append($"<strong>{headerHtml}</strong><br/>{valueHtml}");
+            }
+            else if (colCount == 2)
+            {
+                bool first = true;
+                for (int row = 0; row < rowCount; row++)
+                {
+                    if (tableData[row].Count >= 2)
+                    {
+                        var headerHtml = CleanCellText(GetCellHtml(tableData[row][0]), true);
+                        var valueHtml = CleanCellText(GetCellHtml(tableData[row][1]), false);
+                        if (!string.IsNullOrWhiteSpace(tableData[row][0].InnerText) || !string.IsNullOrWhiteSpace(tableData[row][1].InnerText))
+                        {
+                            if (!first)
+                                result.Append("<br/><br/>");
+                            result.Append($"<strong>{headerHtml}</strong><br/>{valueHtml}");
+                            first = false;
+                        }
+                    }
+                }
+            }
+
+            result.Append("</p>");
+            return result.ToString();
+        }
+
+        private string FormatLargeTable(List<List<HtmlNode>> tableData, int rowCount, int colCount)
+        {
+            var result = new System.Text.StringBuilder();
+            result.Append("<p>");
+
+            if (TableFormatMode == TableFormatMode.ColumnFirst)
+            {
+                for (int col = 0; col < colCount; col++)
+                {
+                    if (col > 0)
+                        result.Append("<br/>---<br/>");
+
+                    for (int row = 0; row < rowCount; row++)
+                    {
+                        if (col < tableData[row].Count)
+                        {
+                            var cellHtml = CleanCellText(GetCellHtml(tableData[row][col]), false);
+                            if (!string.IsNullOrWhiteSpace(tableData[row][col].InnerText))
+                            {
+                                if (row > 0)
+                                    result.Append("<br/>");
+
+                                if (row == 0)
+                                {
+                                    // Strip any strong tags from the cell content for row 0 before re-applying
+                                    var headerText = System.Text.RegularExpressions.Regex.Replace(cellHtml, @"<strong[^>]*>(.*?)</strong>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    headerText = System.Text.RegularExpressions.Regex.Replace(headerText, @"<b[^>]*>(.*?)</b>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    result.Append($"<strong>{headerText}</strong>");
+                                }
+                                else
+                                    result.Append(cellHtml);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (TableFormatMode == TableFormatMode.RowFirst)
+            {
+                for (int row = 0; row < rowCount; row++)
+                {
+                    if (row > 0)
+                        result.Append("<br/>---<br/>");
+
+                    for (int col = 0; col < tableData[row].Count; col++)
+                    {
+                        var cellHtml = CleanCellText(GetCellHtml(tableData[row][col]), false);
+                        if (!string.IsNullOrWhiteSpace(tableData[row][col].InnerText))
+                        {
+                            if (col > 0)
+                                result.Append("<br/>");
+
+                            if (row == 0)
+                            {
+                                // Strip any strong tags from the cell content for row 0 before re-applying
+                                var headerText = System.Text.RegularExpressions.Regex.Replace(cellHtml, @"<strong[^>]*>(.*?)</strong>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                headerText = System.Text.RegularExpressions.Regex.Replace(headerText, @"<b[^>]*>(.*?)</b>", "$1", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                result.Append($"<strong>{headerText}</strong>");
+                            }
+                            else
+                                result.Append(cellHtml);
+                        }
+                    }
+                }
+            }
+
+            result.Append("</p>");
+            return result.ToString();
         }
 
         public abstract IEnumerable<string> GetParagraphs(HtmlDocument document, string title = "");

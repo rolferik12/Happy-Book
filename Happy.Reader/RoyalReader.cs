@@ -49,6 +49,7 @@
 
             RemoveNodeWithTextProbability(chapterNode, swearWords);
 
+            FormatTables(chapterNode);
             ChangeTableWidth(chapterNode, 100);
 
             // Convert newlines to <br/> so inline content (e.g. status boxes) preserves

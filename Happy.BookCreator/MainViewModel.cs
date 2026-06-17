@@ -23,6 +23,8 @@ namespace Happy.BookCreator
         private string _headerRemoveText = string.Empty;
         private string _headerReplaceText = string.Empty;
         private OutputTypeEnum? _selectedOutputType;
+        private TableFormatMode _selectedTableFormat = TableFormatMode.NoFormatting;
+        private bool _treatTwoColumnTablesAsSmall = false;
         private bool _isImportEnabled = true;
         private bool _isSaveEnabled;
         private string _importButtonText = "Import";
@@ -35,6 +37,7 @@ namespace Happy.BookCreator
         {
             ReaderOptions = new ObservableCollection<ReaderEnum>(Enum.GetValues<ReaderEnum>());
             OutputTypeOptions = new ObservableCollection<OutputTypeEnum>(Enum.GetValues<OutputTypeEnum>());
+            TableFormatOptions = new ObservableCollection<TableFormatMode>(Enum.GetValues<TableFormatMode>());
 
             ImportCommand = new RelayCommand(async _ => await ImportAsync(), _ => IsImportEnabled);
             SaveCommand = new RelayCommand(async _ => await SaveAsync(), _ => IsSaveEnabled);
@@ -45,6 +48,7 @@ namespace Happy.BookCreator
         public ObservableCollection<Chapter> Chapters { get; } = new();
         public ObservableCollection<ReaderEnum> ReaderOptions { get; }
         public ObservableCollection<OutputTypeEnum> OutputTypeOptions { get; }
+        public ObservableCollection<TableFormatMode> TableFormatOptions { get; }
 
         public string BookName
         {
@@ -108,6 +112,18 @@ namespace Happy.BookCreator
                     OnPropertyChanged(nameof(IsSaveVisible));
                 }
             }
+        }
+
+        public TableFormatMode SelectedTableFormat
+        {
+            get => _selectedTableFormat;
+            set => SetProperty(ref _selectedTableFormat, value);
+        }
+
+        public bool TreatTwoColumnTablesAsSmall
+        {
+            get => _treatTwoColumnTablesAsSmall;
+            set => SetProperty(ref _treatTwoColumnTablesAsSmall, value);
         }
 
         public bool IsImportEnabled
@@ -202,6 +218,9 @@ namespace Happy.BookCreator
                 ReaderEnum.NovelFire => new NovelFireReader(Url, BookName, HeaderRemoveText, HeaderReplaceText),
                 _ => throw new InvalidOperationException("No reader selected.")
             };
+
+            reader.TableFormatMode = SelectedTableFormat;
+            reader.TreatTwoColumnTablesAsSmall = TreatTwoColumnTablesAsSmall;
 
             try
             {

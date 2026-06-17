@@ -18,6 +18,7 @@
 
             if (chapterNode == null) return string.Empty;
 
+            FormatTables(chapterNode);
             RemoveLink(chapterNode);
             RemoveNodeWithtext(chapterNode, "Share this:", "Like Loading...");
 

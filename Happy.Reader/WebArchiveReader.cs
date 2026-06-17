@@ -44,6 +44,7 @@
 
             RemoveNodeWithTextProbability(chapterNode, swearWords);
 
+            FormatTables(chapterNode);
             ChangeTableWidth(chapterNode, 100);
 
             return chapterNode.InnerHtml;

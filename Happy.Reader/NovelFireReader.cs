@@ -25,6 +25,7 @@
             // Extract CSS classes that hide content (for obfuscated/random class names)
             ExtractHiddenCssClasses(document);
 
+            FormatTables(chapterNode);
             ChangeTableWidth(chapterNode, 100);
 
             var swearWords = new Dictionary<string, int>
