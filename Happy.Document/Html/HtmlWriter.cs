@@ -11,6 +11,9 @@
         private string _storagePath = string.Empty;
         private string _name = string.Empty;
         private int _counter = 0;
+
+        public List<string> FailedChapters { get; private set; } = new List<string>();
+
         private static List<char> CHARS = new List<char>()
         {
             'A',
@@ -56,22 +59,32 @@
 
         public void WriteChapterFromHtml(string title, string html)
         {
-  
+
 
         }
 
-        public void WriteChapter(Chapter chapter)
+        public Task WriteChapterAsync(Chapter chapter)
         {
-            _currentDocument += $"<h1>{chapter.Title}</h1><br />{chapter.Html}";
-            _counter++;
-
-            if (_counter == CHAPTERS_PER_FILE)
+            try
             {
+                _currentDocument += $"<h1>{chapter.Title}</h1><br />{chapter.Html}";
+                _counter++;
 
-                _documents.Add(new HtmlDocument(_currentDocument));
-                _currentDocument = string.Empty;
-                _counter = 0;
+                if (_counter == CHAPTERS_PER_FILE)
+                {
+
+                    _documents.Add(new HtmlDocument(_currentDocument));
+                    _currentDocument = string.Empty;
+                    _counter = 0;
+                }
             }
+            catch (Exception ex)
+            {
+                FailedChapters.Add(chapter.Title);
+                Console.WriteLine($"Failed to write chapter '{chapter.Title}': {ex.Message}");
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

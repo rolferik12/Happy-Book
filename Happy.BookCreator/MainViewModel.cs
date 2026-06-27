@@ -6,6 +6,7 @@ namespace Happy.BookCreator
     using Happy.Reader;
     using System;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
@@ -259,17 +260,30 @@ namespace Happy.BookCreator
             IsSaveEnabled = false;
             SaveButtonText = "Saving...";
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 foreach (var chapter in Chapters)
                 {
-                    writer.WriteChapter(chapter);
+                    await writer.WriteChapterAsync(chapter);
                 }
 
                 writer.Save();
             });
 
-            SaveButtonText = "Saved";
+            if (writer.FailedChapters.Any())
+            {
+                SaveButtonText = $"Saved ({writer.FailedChapters.Count} failed)";
+                System.Windows.MessageBox.Show(
+                    $"The following chapters failed to save:\n\n{string.Join("\n", writer.FailedChapters)}",
+                    "Chapter Errors",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+            else
+            {
+                SaveButtonText = "Saved";
+            }
+
             IsSaveEnabled = true;
         }
     }

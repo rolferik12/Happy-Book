@@ -9,7 +9,8 @@
 
     public interface IWriter
     {
-        public void WriteChapter(Chapter chapter);
+        public List<string> FailedChapters { get; }
+        public Task WriteChapterAsync(Chapter chapter);
         public void Save();
     }
 }

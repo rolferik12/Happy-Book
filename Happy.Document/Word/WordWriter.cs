@@ -2,8 +2,10 @@
 {
     using DocumentFormat.OpenXml.Packaging;
     using DocumentFormat.OpenXml.Wordprocessing;
+    using DocumentFormat.OpenXml;
     using Happy.Reader;
     using HtmlToOpenXml;
+    using System.Text.RegularExpressions;
 
     public class WordWriter : IWriter
     {
@@ -15,6 +17,8 @@
 
         private string _folderPath = string.Empty;
         private string _name = string.Empty;
+
+        public List<string> FailedChapters { get; private set; } = new List<string>();
         public WordWriter(string name, string folderPath)
         {
             _folderPath = folderPath + " docx";
@@ -68,7 +72,57 @@
             para.ParagraphProperties = new ParagraphProperties(new ParagraphStyleId() { Val = "Heading1" });
         }
 
-        public void WriteChapter(Chapter chapter)
+        private async Task<string> ValidateAndCleanHtmlAsync(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html))
+                return html;
+
+            var imgTagPattern = @"<img[^>]+src\s*=\s*[""']([^""']+)[""'][^>]*>";
+            var matches = Regex.Matches(html, imgTagPattern, RegexOptions.IgnoreCase);
+
+            if (matches.Count == 0)
+                return html;
+
+            var invalidImages = new List<string>();
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+            foreach (Match match in matches)
+            {
+                var imageUrl = System.Net.WebUtility.HtmlDecode(match.Groups[1].Value);
+
+                try
+                {
+                    using var response = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead);
+
+                    if (!response.IsSuccessStatusCode || response.Content.Headers.ContentLength == 0)
+                    {
+                        invalidImages.Add(match.Value);
+                        continue;
+                    }
+
+                    using var stream = await response.Content.ReadAsStreamAsync();
+                    if (stream.Length == 0 || !stream.CanRead)
+                    {
+                        invalidImages.Add(match.Value);
+                    }
+                }
+                catch
+                {
+                    invalidImages.Add(match.Value);
+                }
+            }
+
+            var cleanedHtml = html;
+            foreach (var invalidImg in invalidImages)
+            {
+                cleanedHtml = cleanedHtml.Replace(invalidImg, "<!-- Image removed: validation failed -->");
+            }
+
+            return cleanedHtml;
+        }
+
+        public async Task WriteChapterAsync(Chapter chapter)
         {
             if (_counter >= CHAPTERS_PER_FILE)
             {
@@ -84,8 +138,11 @@
 
                 WriteHeader1(chapter.Title, body);
 
+                // Validate and clean HTML to remove broken images
+                var cleanedHtml = await ValidateAndCleanHtmlAsync(chapter.Html);
+
                 HtmlConverter converter = new HtmlConverter(_document.MainDocumentPart);
-                var paragraphs = converter.Parse(chapter.Html);
+                var paragraphs = converter.Parse(cleanedHtml);
                 foreach (var paragraph in paragraphs)
                 {
                     body.Append(paragraph);
@@ -99,6 +156,8 @@
             }
             catch (Exception ex)
             {
+                FailedChapters.Add(chapter.Title);
+                Console.WriteLine($"Failed to write chapter '{chapter.Title}': {ex.Message}");
                 Console.WriteLine(ex.ToString());
             }
         }
